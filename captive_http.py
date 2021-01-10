@@ -13,6 +13,9 @@ from server import Server
 
 import gc
 
+import re
+
+_charref = re.compile(r'%([0-9a-fA-F][0-9a-fA-F])')
 
 class HTTPServer(Server):
     def __init__(self, poller, local_ip):
@@ -75,17 +78,23 @@ class HTTPServer(Server):
         path = full_path.split(b"?")
         base_path = path[0]
         query = path[1] if len(path) > 1 else None
-        query_params = (
-            {
-                key: val
-                for key, val in [param.split(b"=") for param in query.split(b"&")]
-            }
-            if query
-            else {}
-        )
+        try:
+            query_params = (
+                {
+                    key: self.unescape(val)
+                    for key, val in [param.split(b"=") for param in query.split(b"&")]
+                }
+                if query
+                else {}
+            )
+        except ValueError:
+            query_params = ()
         host = [line.split(b": ")[1] for line in req_lines if b"Host:" in line][0]
 
         return ReqInfo(req_type, base_path, query_params, host)
+
+    def unescape(self, s):
+        return _charref.sub(lambda x: chr(int(x.group(1), 16)), s)
 
     def login(self, params):
         ssid = params.get(b"ssid", None)
