@@ -1,75 +1,417 @@
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WiFi Login</title>
-    <style>
-      body {
-        font-family: sans-serif;
-        background: #3498db;
-        width: 100%;
-        text-align: center;
-        margin: 20px 0px 20px 0px;
-      }
-      p {
-        font-size: 12px;
-        text-decoration: none;
-        color: #fff;
-      }
-      h1 {
-        font-size: 1.5em;
-        color: #525252;
-      }
-      .box {
-        background: white;
-        width: 40ch;
-        border-radius: 6px;
-        margin: 0 auto 0 auto;
-        padding: 10px 0px 10px 0px;
-      }
-      input[type='text'],
-      input[type='password'] {
-        background: #ecf0f1;
-        border: #ccc 1px solid;
-        border-bottom: #ccc 2px solid;
-        padding: 8px;
-        width: 60%;
-        color: #aaa;
-        margin-top: 10px;
-        font-size: 1em;
-        border-radius: 4px;
-      }
-      .btn {
-        background: #2ecc71;
-        width: 50%;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        color: white;
-        border-radius: 4px;
-        border: #27ae60 1px solid;
-        margin: 20 auto;
-        font-weight: 800;
-        font-size: 0.8em;
-      }
-    </style>
-  </head>
-  <body>
-    <form action="/login" method="get" class="box">
-      <h1>WiFi login credentials</h1>
-      <input type="text" placeholder="My WiFi SSID" name="ssid" required />
 
-      <br />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tegschtuhr</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #3498db;
+      width: 100%;
+      /*text-align: center;*/
+      margin: 20px 0px 20px 0px;
+    }
 
-      <input
-        type="password"
-        placeholder="WiFi Password"
-        name="password"
-        required
-      />
+    p {
+      font-size: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
 
-      <br />
+    h1 {
+      text-align: center;
+    }
 
-      <button type="submit" class="btn">Connect</button>
-    </form>
-  </body>
+    .box {
+      background: white;
+      width: 40ch;
+      border-radius: 6px;
+      margin: 1rem auto 0 auto;
+      padding: 0.5rem 2rem;
+    }
+
+    input[type='text'],
+    input[type='password'] {
+      background: #ecf0f1;
+      border: #ccc 1px solid;
+      border-bottom: #ccc 2px solid;
+      padding: 8px;
+      width: 60%;
+      color: #aaa;
+      margin-top: 10px;
+      font-size: 1em;
+      border-radius: 4px;
+    }
+
+
+
+    /*----------*/
+
+
+    .myswitch {
+      position: relative;
+      display: inline-block;
+      width: 1.2rem;
+      height: 1.2rem;
+      padding: 0.2rem;
+    }
+
+    .myswitch input {
+      display: none;
+    }
+
+    .myslider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      background-color: #ccc;
+      /*#ca2222;*/
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 34px;
+      text-align: center;
+    }
+
+
+    input:checked+.myslider {
+      background-color: #ca3;
+      /*#2ab934;*/
+    }
+
+    .textdiv {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /*----------*/
+
+    body {
+      font-family: Helvetica, sans-serif
+    }
+
+    input[type=text],
+    input[type=password],
+    input[type=number],
+    select {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    input[type=submit] {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type=submit]:hover {
+      background-color: #45a049;
+    }
+
+    div {
+      border-radius: 5px;
+      /*background-color: #f2f2f2;*/
+      padding: 20px;
+    }
+
+    table,
+    th,
+    td {
+      border: none;
+      text-align: left;
+    }
+
+    form {
+      max-width: 40rem;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Tegschtuhr</h1>
+  <p id="demo">Hi.</p> 
+
+  <div class="box">
+  <h2>Aktuelli Wärt</h2>
+  <table>
+    <tr>
+      <th>Temperatur</th>
+      <td><span id="act_temperature"></span> °C</td>
+    </tr>
+    <tr>
+      <th>Loftfüechtigkeit</th>
+      <td>{act_humidity} %</td>
+    </tr>
+    <tr>
+      <th>Loftdrock</th>
+      <td><span id="act_pressure"></span> hPa</td>
+    </tr>
+    <tr>
+      <th>Helligkeit</th>
+      <td>{act_brightness} lum</td>
+    </tr>
+  </table>
+</div>
+  <form action="/settings" method="get" class="box">
+    <h2>Wätter</h2>
+    <label for="lat">Breitegrad:</label><br>
+    <input type="number" step="0.01" id="lat" name="lat"><br>
+    <label for="lon">Längegrad:</label><br>
+    <input type="number" step="0.01" id="lon" name="lon"><br>
+    <label for="foreindex">Vorhersage-Duur (h):</label><br>
+    <input type="number" min="0" max="47" id="foreindex" name="foreindex"><br>
+    <label for="ap_id">OpenWeather-App-ID:</label><br>
+    <input type="text" name="ap_id">
+    <h2>Helligkeit</h2>
+    <label for="min_level">Minimali Helligkeitsstufe:</label><br>
+    <input type="number" min="0" max="15" id="min_level" name="min_level"><br>
+    <label for="min_lum">Luminanz för min. Helligkeit:</label><br>
+    <input type="number" step="0.01" id="min_lum" name="min_lum"><br>
+    <label for="max_level">Maximali Helligkeitsstufe:</label><br>
+    <input type="number" min="0" max="15" id="max_level" name="max_level"><br>
+    <label for="max_lum">Luminanz för max. Helligkeit:</label><br>
+    <input type="number" step="0.01" id="max_lum" name="max_lum">
+    <h2>Eigede Tegscht</h2>
+    <table>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p00_00"><div class="myslider"><div class="textdiv">B</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_01"><div class="myslider"><div class="textdiv">M</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_02"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_03"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_04"><div class="myslider"><div class="textdiv">U</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_05"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_06"><div class="myslider"><div class="textdiv">A</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_07"><div class="myslider"><div class="textdiv">C</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_08"><div class="myslider"><div class="textdiv">H</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_09"><div class="myslider"><div class="textdiv">T</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_10"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_11"><div class="myslider"><div class="textdiv">O</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_12"><div class="myslider"><div class="textdiv">L</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p00_13"><div class="myslider"><div class="textdiv">L</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p01_00"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_01"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_02"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_03"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_04"><div class="myslider"><div class="textdiv">W</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_05"><div class="myslider"><div class="textdiv">O</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_06"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_07"><div class="myslider"><div class="textdiv">V</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_08"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_09"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_10"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_11"><div class="myslider"><div class="textdiv">D</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_12"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p01_13"><div class="myslider"><div class="textdiv">Ü</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p02_00"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_01"><div class="myslider"><div class="textdiv">W</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_02"><div class="myslider"><div class="textdiv">Ö</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_03"><div class="myslider"><div class="textdiv">L</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_04"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_05"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_06"><div class="myslider"><div class="textdiv">Ü</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_07"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_08"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_09"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_10"><div class="myslider"><div class="textdiv">Ö</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_11"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_12"><div class="myslider"><div class="textdiv">Ü</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p02_13"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p03_00"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_01"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_02"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_03"><div class="myslider"><div class="textdiv">B</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_04"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_05"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_06"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_07"><div class="myslider"><div class="textdiv">Ä</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_08"><div class="myslider"><div class="textdiv">C</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_09"><div class="myslider"><div class="textdiv">H</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_10"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_11"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_12"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p03_13"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p04_00"><div class="myslider"><div class="textdiv">D</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_01"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_02"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_03"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_04"><div class="myslider"><div class="textdiv">G</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_05"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_06"><div class="myslider"><div class="textdiv">V</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_07"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_08"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_09"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_10"><div class="myslider"><div class="textdiv">T</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_11"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_12"><div class="myslider"><div class="textdiv">L</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p04_13"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p05_00"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_01"><div class="myslider"><div class="textdiv">W</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_02"><div class="myslider"><div class="textdiv">Ä</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_03"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_04"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_05"><div class="myslider"><div class="textdiv">G</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_06"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_07"><div class="myslider"><div class="textdiv">Ä</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_08"><div class="myslider"><div class="textdiv">H</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_09"><div class="myslider"><div class="textdiv">K</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_10"><div class="myslider"><div class="textdiv">O</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_11"><div class="myslider"><div class="textdiv">M</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_12"><div class="myslider"><div class="textdiv">M</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p05_13"><div class="myslider"><div class="textdiv">A</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p06_00"><div class="myslider"><div class="textdiv">V</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_01"><div class="myslider"><div class="textdiv">O</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_02"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_03"><div class="myslider"><div class="textdiv">A</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_04"><div class="myslider"><div class="textdiv">B</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_05"><div class="myslider"><div class="textdiv">U</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_06"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_07"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_08"><div class="myslider"><div class="textdiv">C</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_09"><div class="myslider"><div class="textdiv">H</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_10"><div class="myslider"><div class="textdiv">A</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_11"><div class="myslider"><div class="textdiv">L</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_12"><div class="myslider"><div class="textdiv">B</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p06_13"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p07_00"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_01"><div class="myslider"><div class="textdiv">L</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_02"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_03"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_04"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_05"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_06"><div class="myslider"><div class="textdiv">A</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_07"><div class="myslider"><div class="textdiv">C</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_08"><div class="myslider"><div class="textdiv">H</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_09"><div class="myslider"><div class="textdiv">T</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_10"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_11"><div class="myslider"><div class="textdiv">D</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_12"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p07_13"><div class="myslider"><div class="textdiv">Ü</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p08_00"><div class="myslider"><div class="textdiv">O</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_01"><div class="myslider"><div class="textdiv">K</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_02"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_03"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_04"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_05"><div class="myslider"><div class="textdiv">Ä</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_06"><div class="myslider"><div class="textdiv">C</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_07"><div class="myslider"><div class="textdiv">H</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_08"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_09"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_10"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_11"><div class="myslider"><div class="textdiv">Ü</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_12"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p08_13"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p09_00"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_01"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_02"><div class="myslider"><div class="textdiv">B</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_03"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_04"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_05"><div class="myslider"><div class="textdiv">G</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_06"><div class="myslider"><div class="textdiv">M</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_07"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_08"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_09"><div class="myslider"><div class="textdiv">Ä</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_10"><div class="myslider"><div class="textdiv">H</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_11"><div class="myslider"><div class="textdiv">N</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_12"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p09_13"><div class="myslider"><div class="textdiv">U</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p10_00"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_01"><div class="myslider"><div class="textdiv">Ü</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_02"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_03"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_04"><div class="myslider"><div class="textdiv">S</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_05"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_06"><div class="myslider"><div class="textdiv">B</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_07"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_08"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_09"><div class="myslider"><div class="textdiv">W</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_10"><div class="myslider"><div class="textdiv">Ö</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_11"><div class="myslider"><div class="textdiv">L</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_12"><div class="myslider"><div class="textdiv">F</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p10_13"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+      </tr>
+      <tr>
+          <td><label class="myswitch"><input type="checkbox" name="p11_00"><div class="myslider"><div class="textdiv">Z</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_01"><div class="myslider"><div class="textdiv">W</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_02"><div class="myslider"><div class="textdiv">O</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_03"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_04"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_05"><div class="myslider"><div class="textdiv">V</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_06"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_07"><div class="myslider"><div class="textdiv">E</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_08"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_09"><div class="myslider"><div class="textdiv">I</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_10"><div class="myslider"><div class="textdiv">G</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_11"><div class="myslider"><div class="textdiv">R</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_12"><div class="myslider"><div class="textdiv">A</div></div></label></td>
+          <td><label class="myswitch"><input type="checkbox" name="p11_13"><div class="myslider"><div class="textdiv">D</div></div></label></td>
+      </tr>
+    </table>
+    <h2>Söschtigs</h2>
+    <label for="max_lum">Timeout i de Ondermenüs:</label><br>
+    <input type="number" step="0.01" name="timeout"><br>
+    <input type="checkbox" name="debug" value="true">
+    <label for="debug"> Dibag-Modus</label><br>
+    <h2>Fertig</h2>
+    <input type="submit" value="Istellige ändere!">
+  </form>
+  <form action="/login" method="get" class="box">
+    <h2>Netzwärch</h2>
+    <label for="ssid">SSID:</label><br>
+    <input type="text" name="ssid" value="" list="available_networks" required>
+      <datalist name="available_networks">
+        <option value="WiFi1"> </option>
+        <option value="Wifi2"> </option>
+      </datalist><br>
+    <label for="password">Passwort:</label><br>
+    <input type="password" name="password"></body>
+    <input type="submit" value="Netzwärch ändere">
+  </form>
+  <script>
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "/get_info", false ); // false for synchronous request
+    xmlHttp.send( null );
+    const obj = JSON.parse(xmlHttp.responseText);
+    document.getElementById("demo").innerHTML = obj.lat;
+    document.getElementById("act_pressure").innerHTML = obj.act_pressure;
+    document.getElementById("lat").value = obj.lat;
+
+  </script>
+</body>
+
 </html>

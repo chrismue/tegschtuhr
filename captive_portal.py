@@ -20,7 +20,7 @@ class CaptivePortal:
         self.ap_if = network.WLAN(network.AP_IF)
 
         if essid is None:
-            essid = b"ESP8266-%s" % binascii.hexlify(self.ap_if.config("mac")[-3:])
+            essid = b"Tegschtuhr-%s" % binascii.hexlify(self.ap_if.config("mac")[-3:])
         self.essid = essid
 
         self.creds = Creds()
@@ -65,6 +65,7 @@ class CaptivePortal:
             else:
                 print("Connected to {:s}".format(self.creds.ssid))
                 self.local_ip = self.sta_if.ifconfig()[0]
+                self.sta_if.config(dhcp_hostname="tegschtuhr")
                 return True
 
         print(
