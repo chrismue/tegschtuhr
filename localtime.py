@@ -1,4 +1,4 @@
-from ds1307 import DS1307
+from externalrtc import DS1307
 from machine import RTC
 import ntptime
 
