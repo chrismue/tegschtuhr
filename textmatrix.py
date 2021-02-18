@@ -139,26 +139,25 @@ class TextFinder:
         return self.WEATHER[weather_code]
  
 
-def debugPrintPositions(positions):
-    out = ["              ",
-           "              ",
-           "              ",
-           "              ",
-           "              ",
-           "              ",
-           "              ",
-           "              ",
-           "              ",
-           "              ",
-           "              ",
-           "              "]
-    for r, c in positions:
-        out[r] = out[r][:c] + CharacterMatrix.MATRIX[r*CharacterMatrix.ROW_LEN + c] + out[r][c+1:]
-    print("-------------")
-    print("\n".join(out))
-
 if __name__ == "__main__":
     import time
+    def debugPrintPositions(positions):
+        out = ["              ",
+            "              ",
+            "              ",
+            "              ",
+            "              ",
+            "              ",
+            "              ",
+            "              ",
+            "              ",
+            "              ",
+            "              ",
+            "              "]
+        for r, c in positions:
+            out[r] = out[r][:c] + CharacterMatrix.MATRIX[r*CharacterMatrix.ROW_LEN + c] + out[r][c+1:]
+        print("-------------")
+        print("\n".join(out))
     start = time.time()
     finder = TextFinder()
     for h in range(13):
