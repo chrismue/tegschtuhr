@@ -1,6 +1,6 @@
 from micropython import const
 import urequests
-from common import SUNNY, CLOUDY, RAINY, SNOWY
+import common
 
 # https://openweathermap.org/weather-conditions#How-to-get-icon-URL
 """
@@ -15,24 +15,26 @@ Day    Night    Description
 13d    13n      snow
 50d    50n      mist 
 """
-icons = {"01": SUNNY,
-         "02": SUNNY,
-         "03": CLOUDY,
-         "04": CLOUDY,
-         "09": RAINY,
-         "10": RAINY,
-         "11": RAINY,
-         "13": SNOWY,
-         "50": CLOUDY}
+icons = {"01": common.SUNNY,
+         "02": common.SUNNY,
+         "03": common.CLOUDY,
+         "04": common.CLOUDY,
+         "09": common.RAINY,
+         "10": common.RAINY,
+         "11": common.RAINY,
+         "13": common.SNOWY,
+         "50": common.CLOUDY}
 
 
 class Weather:
-    def __init__(self, lat=46.98457, lon=8.30702, appid="<YOUR_APPID>", forecast_index = 4):
+    def __init__(self, lat=None, lon=None, appid=None, forecast_index=None):
+        if lat is None or lon is None or appid is None or forecast_index is None:
+            lat, lon, forecast_index, appid = common.get_weather_cfg()
         self._url = "https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&units=metric&exclude=minutely,daily&appid={}".format(lat, lon, appid)
         self._forecast_index = forecast_index
         self.current_temp = 0.0
         self.forecast_temp = 0.0
-        self.forecast_index = SUNNY
+        self.forecast_icon = common.SUNNY
 
     def update(self):
         try:
@@ -40,8 +42,8 @@ class Weather:
             data = resp.json()
             self.current_temp = data["current"]["temp"]
             self.forecast_temp = data["hourly"][self._forecast_index]["temp"]
-            icon = ["hourly"][self._forecast_index]["weather"][0]["icon"]
-            self.forecast_index = icons[icon[:2]]
+            icon = data["hourly"][self._forecast_index]["weather"][0]["icon"]
+            self.forecast_icon = icons[icon[:2]]
             return True
         except:
             return False
