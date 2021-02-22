@@ -25,7 +25,7 @@ i2c = I2C(1, scl=Pin(25), sda=Pin(26), freq=100000)
 mytime = LocalTime(i2c)
 lightsensor = BH1750(i2c)
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print("Woke from deep sleep...")
@@ -64,8 +64,7 @@ def mode_switch():
     MODE_TIMEOUTSTAMP = time.ticks_ms() + MODE_TIMEOUT_MS
 
 touchsensor = TouchSensor(32, mode_switch)
-touch_is_pressed = touchsensor.is_pressed()
-if touchsensor.is_pressed():
+if DEBUG_MODE or touchsensor.is_pressed():
     ambient = BME280(i2c)
     weather = Weather()
 
@@ -98,11 +97,11 @@ matrix.set_brightness(lightsensor.get_light_level())
 matrix.show_pixels(positions)
 CURRENT_MODE = 0
 
-if False and m % 5 == 0: # TODO
+if m % 5 == 0: # TODO
     rtc_sync_successful = mytime.sync_from_external_RTC()
     if not rtc_sync_successful:
         portal = CaptivePortal()
-        if portal.connect_to_wifi():
+        if portal.try_connect_from_file():
             connected_time = time.ticks_ms()
             synced_once = False
             while not synced_once and time.ticks_ms() < connected_time + 10000:
@@ -120,4 +119,4 @@ sleep_time = max(0.1, mytime.seconds_to_next_minute - 2)  # subtract 1 second fo
 if not DEBUG_MODE:
     print("deep-sleeping at", h, ":", m, "; sleeping", sleep_time)
     supply_sensoren.off()
-    # TODO: machine.deepsleep(int(sleep_time * 1000))  # deepsleep uses milliseconds
+    machine.deepsleep(int(sleep_time * 1000))  # deepsleep uses milliseconds

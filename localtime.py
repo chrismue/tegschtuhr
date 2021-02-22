@@ -18,10 +18,14 @@ class LocalTime:
     def sync_from_ntp(self):
         try:
             ntptime.settime()
-            self._external_rtc.datetime(self._internal_rtc.datetime())
-            return True
         except:
             return False
+        try:
+            self._external_rtc.datetime(self._internal_rtc.datetime())
+        except:
+            print("Failed to set NTP time in external RTC")
+            pass
+        return True
 
     @property
     def time(self):
