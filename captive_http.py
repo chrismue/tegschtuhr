@@ -21,12 +21,13 @@ import re
 _charref = re.compile(r'%([0-9a-fA-F][0-9a-fA-F])')
 
 class HTTPServer(Server):
-    def __init__(self, poller, local_ip):
+    def __init__(self, poller, local_ip, mac_address):
         super().__init__(poller, 80, socket.SOCK_STREAM, "HTTP Server")
         if type(local_ip) is bytes:
             self.local_ip = local_ip
         else:
             self.local_ip = local_ip.encode()
+        self.mac_address = mac_address
         self.request = dict()
         self.conns = dict()
         self.routes = {b"/": b"./index.html",
@@ -116,6 +117,7 @@ class HTTPServer(Server):
         )
         info = common.get_config()
         info["act_pressure"] = 12345
+        info["mac_address"] = self.mac_address
         return ujson.dumps(info), headers
 
     def login(self, params):

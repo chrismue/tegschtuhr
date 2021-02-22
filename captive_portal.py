@@ -19,6 +19,8 @@ class CaptivePortal:
         self.sta_if = network.WLAN(network.STA_IF)
         self.ap_if = network.WLAN(network.AP_IF)
 
+        self.mac_address = str(binascii.hexlify(self.sta_if.config("mac"))).upper()
+
         if essid is None:
             essid = b"Tegschtuhr-%s" % binascii.hexlify(self.ap_if.config("mac")[-3:])
         self.essid = essid
@@ -109,7 +111,7 @@ class CaptivePortal:
         self.start_access_point()
 
         if self.http_server is None:
-            self.http_server = HTTPServer(self.poller, self.local_ip)
+            self.http_server = HTTPServer(self.poller, self.local_ip, self.mac_address)
             print("Configured HTTP server")
         if self.dns_server is None:
             self.dns_server = DNSServer(self.poller, self.local_ip)

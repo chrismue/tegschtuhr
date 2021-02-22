@@ -16,7 +16,6 @@
     p {
       font-size: 12px;
       text-decoration: none;
-      color: #fff;
     }
 
     h1 {
@@ -145,8 +144,6 @@
 
 <body>
   <h1>Tegschtuhr</h1>
-  <p id="demo">Hi.</p> 
-
   <div class="box">
   <h2>Aktuelli Wärt</h2>
   <table>
@@ -392,6 +389,7 @@
   </form>
   <form action="/login" method="get" class="box">
     <h2>Netzwärch</h2>
+    <p>MAC-Adressi <span id="mac_addr"></span></p>
     <label for="ssid">SSID:</label><br>
     <input type="text" name="ssid" value="" list="available_networks" required>
       <datalist name="available_networks">
@@ -407,8 +405,8 @@
     xmlHttp.open( "GET", "/get_info", false ); // false for synchronous request
     xmlHttp.send( null );
     const obj = JSON.parse(xmlHttp.responseText);
-    document.getElementById("demo").innerHTML = obj.lat;
     document.getElementById("act_pressure").innerHTML = obj.act_pressure;
+    document.getElementById("mac_addr").innerHTML = obj.mac_address;
     document.getElementById("lat").value = obj.lat;
 
   </script>
