@@ -12,30 +12,39 @@ from localtime import LocalTime
 from ambient import BME280
 from weather import Weather
 
+from common import get_main_cfg
+
 CURRENT_MODE = 0  # 0: Time, 1: Temperature, 2: Humidity
-MODE_TIMEOUTSTAMPSTAMP = 0
-MODE_TIMEOUT_MS = 20000 # cfg.mode_timeout
+mode_timeoutstamp = 0
+DEBUG_MODE, MODE_TIMEOUT_MS = get_main_cfg()
+
+def update_timeout():
+    global mode_timeoutstamp
+    print(repr(MODE_TIMEOUT_MS))
+    mode_timeoutstamp = time.ticks_ms() + MODE_TIMEOUT_MS
+    print("Updated Timeout to", mode_timeoutstamp)
 
 #Initialize Hardware
 matrix = Max7219Chain(1, cs_pinnr=27, sck_pinnr=14, mosi_pinnr=13, miso_pinnr=12)
+i2c = I2C(1, scl=Pin(25, pull=Pin.PULL_UP), sda=Pin(26, pull=Pin.PULL_UP), freq=100000)
 supply_sensoren = Pin(33, Pin.OUT)
 supply_sensoren.on()
 textfinder = TextFinder()
-i2c = I2C(1, scl=Pin(25), sda=Pin(26), freq=100000)
 mytime = LocalTime(i2c)
 lightsensor = BH1750(i2c)
-
-DEBUG_MODE = False
 
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print("Woke from deep sleep...")
 else:
     mytime.sync_from_external_RTC()
-    # portal = CaptivePortal()
-    # portal.start()
+
+def get_measurements_for_web():
+    return ambient.temperature, ambient.humidity, ambient.pressure, lightsensor.luminance()
 
 def mode_switch():
-    global CURRENT_MODE, MODE_TIMEOUTSTAMP
+    global CURRENT_MODE
+    update_timeout()
+
     print("Mode Switch!", CURRENT_MODE)
     positions=[]
     if CURRENT_MODE == 0:
@@ -61,21 +70,23 @@ def mode_switch():
     else: 
         CURRENT_MODE = 0
     
-    MODE_TIMEOUTSTAMP = time.ticks_ms() + MODE_TIMEOUT_MS
+    update_timeout()
 
 touchsensor = TouchSensor(32, mode_switch)
 if DEBUG_MODE or touchsensor.is_pressed():
+    try:
     ambient = BME280(i2c)
     weather = Weather()
 
     mode_switch()
 
-    portal = CaptivePortal()
-    portal.start()
+        portal = CaptivePortal(get_measurements_for_web)
+        if portal.start(MODE_TIMEOUT_MS):
+            update_timeout()
     time_synced = False
     weather_synced = False
 
-    while time.ticks_ms() < MODE_TIMEOUTSTAMP:
+            while time.ticks_ms() < mode_timeoutstamp:
         if not time_synced:
             if mytime.sync_from_ntp():
                 print("Time Synched over NTP")
@@ -88,7 +99,10 @@ if DEBUG_MODE or touchsensor.is_pressed():
                 weather_synced = True
             else:
                 print("Failed to Sync Weather.")
-        time.sleep(0.3)
+                if portal.handle_socket_events():
+                    update_timeout()
+    except error as e:
+        print("Error", repr(e), "in Mode Initialisation...")
         
 h, m = mytime.time
 print("Finding", h, ":", m)
@@ -99,8 +113,8 @@ CURRENT_MODE = 0
 
 if m % 5 == 0: # TODO
     rtc_sync_successful = mytime.sync_from_external_RTC()
-    if not rtc_sync_successful:
-        portal = CaptivePortal()
+    if not rtc_sync_successful or (h==3 and m==30):  # sync over NTP once a day
+        portal = CaptivePortal(get_measurements_for_web)
         if portal.try_connect_from_file():
             connected_time = time.ticks_ms()
             synced_once = False

@@ -21,13 +21,14 @@ import re
 _charref = re.compile(r'%([0-9a-fA-F][0-9a-fA-F])')
 
 class HTTPServer(Server):
-    def __init__(self, poller, local_ip, mac_address):
+    def __init__(self, poller, local_ip, mac_address, callback_for_measurements):
         super().__init__(poller, 80, socket.SOCK_STREAM, "HTTP Server")
         if type(local_ip) is bytes:
             self.local_ip = local_ip
         else:
             self.local_ip = local_ip.encode()
         self.mac_address = mac_address
+        self.callback_for_measurements = callback_for_measurements
         self.request = dict()
         self.conns = dict()
         self.routes = {b"/": b"./index.html",
@@ -55,14 +56,16 @@ class HTTPServer(Server):
             # socket to handle this connection
             print("- Accepting new HTTP connection")
             self.accept(sock)
+            return True
         elif event & select.POLLIN:
             # socket has data to read in
             print("- Reading incoming HTTP data")
             self.read(sock)
         elif event & select.POLLOUT:
             # existing connection has space to send more data
-            print("- Sending outgoing HTTP data")
+            # print("- Sending outgoing HTTP data")
             self.write_to(sock)
+        return False
 
     def accept(self, server_sock):
         """accept a new client request socket and register it for polling"""
@@ -116,8 +119,10 @@ class HTTPServer(Server):
             b"HTTP/1.1 200 OK\r\n"
         )
         info = common.get_config()
+        info["act_temperature"], info["act_humidity"], info["act_pressure"], info["act_brightness"] = self.callback_for_measurements()
         info["act_pressure"] = 12345
         info["mac_address"] = self.mac_address
+        info["ssid"] = Creds().load().ssid
         return ujson.dumps(info), headers
 
     def login(self, params):
@@ -306,7 +311,7 @@ class HTTPServer(Server):
         p11_11 = params.get(b"p11_11", None)
         p11_12 = params.get(b"p11_12", None)
         p11_13 = params.get(b"p11_13", None)
-        timeout = params.get(b"timeout", None)
+        timeout = int(params.get(b"timeout", None)) * 1000
         debug = params.get(b"debug", None)
 
         common.store_config(lat, lon, foreindex, ap_id,

@@ -153,7 +153,7 @@
     </tr>
     <tr>
       <th>Loftfüechtigkeit</th>
-      <td>{act_humidity} %</td>
+      <td><span id="act_humidity"></span> %</td>
     </tr>
     <tr>
       <th>Loftdrock</th>
@@ -161,7 +161,7 @@
     </tr>
     <tr>
       <th>Helligkeit</th>
-      <td>{act_brightness} lum</td>
+      <td><span id="act_brightness"></span> lum</td>
     </tr>
   </table>
 </div>
@@ -174,7 +174,7 @@
     <label for="foreindex">Vorhersage-Duur (h):</label><br>
     <input type="number" min="0" max="47" id="foreindex" name="foreindex"><br>
     <label for="ap_id">OpenWeather-App-ID:</label><br>
-    <input type="text" name="ap_id">
+    <input type="text" id="ap_id" name="ap_id">
     <h2>Helligkeit</h2>
     <label for="min_level">Minimali Helligkeitsstufe:</label><br>
     <input type="number" min="0" max="15" id="min_level" name="min_level"><br>
@@ -381,8 +381,8 @@
     </table>
     <h2>Söschtigs</h2>
     <label for="max_lum">Timeout i de Ondermenüs:</label><br>
-    <input type="number" step="0.01" name="timeout"><br>
-    <input type="checkbox" name="debug" value="true">
+    <input type="number" step="0.01" id="timeout" name="timeout"><br>
+    <input type="checkbox" name="debug" name="debug" value="true">
     <label for="debug"> Dibag-Modus</label><br>
     <h2>Fertig</h2>
     <input type="submit" value="Istellige ändere!">
@@ -405,10 +405,26 @@
     xmlHttp.open( "GET", "/get_info", false ); // false for synchronous request
     xmlHttp.send( null );
     const obj = JSON.parse(xmlHttp.responseText);
+    document.getElementById("act_temperature").innerHTML = obj.act_temperature;
+    document.getElementById("act_humidity").innerHTML = obj.act_humidity;
     document.getElementById("act_pressure").innerHTML = obj.act_pressure;
-    document.getElementById("mac_addr").innerHTML = obj.mac_address;
+    document.getElementById("act_brightness").innerHTML = obj.act_brightness;
+    // Weather
     document.getElementById("lat").value = obj.lat;
-
+    document.getElementById("lon").value = obj.lon;
+    document.getElementById("foreindex").value = obj.foreindex;
+    document.getElementById("ap_id").value = obj.ap_id;
+    // Brightness
+    document.getElementById("min_level").value = obj.min_level;
+    document.getElementById("min_lum").value = obj.min_lum;
+    document.getElementById("max_level").value = obj.max_level;
+    document.getElementById("max_lum").value = obj.max_lum;
+    // Others
+    document.getElementById("timeout").value = obj.timeout / 1000;
+    document.getElementById("debug").checked = obj.debug;
+    // Network
+    document.getElementById("mac_addr").innerHTML = obj.mac_address;
+    document.getElementById("ssid").value = obj.ssid;
   </script>
 </body>
 

@@ -14,7 +14,8 @@ class CaptivePortal:
     AP_OFF_DELAY = const(10 * 1000)
     MAX_CONN_ATTEMPTS = 10
 
-    def __init__(self, essid=None):
+    def __init__(self, callback_for_measurements, essid=None):
+        self.callback_for_measurements = callback_for_measurements
         self.local_ip = self.AP_IP
         self.sta_if = network.WLAN(network.STA_IF)
         self.ap_if = network.WLAN(network.AP_IF)
@@ -106,36 +107,49 @@ class CaptivePortal:
                 print("Turned off access point")
         return False
 
-    def captive_portal(self):
+    def start_http_server(self):
+        if self.http_server is None:
+            self.http_server = HTTPServer(self.poller, self.local_ip, self.mac_address, self.callback_for_measurements)
+            print("Configured HTTP server")
+
+    def captive_portal(self, timeout):
         print("Starting captive portal")
+        ret = False
+        start_time = time.ticks_ms()
         self.start_access_point()
 
-        if self.http_server is None:
-            self.http_server = HTTPServer(self.poller, self.local_ip, self.mac_address)
-            print("Configured HTTP server")
+        self.start_http_server()
         if self.dns_server is None:
             self.dns_server = DNSServer(self.poller, self.local_ip)
             print("Configured DNS server")
 
         try:
-            while True:
+            while time.ticks_ms() - start_time < timeout:
                 gc.collect()
                 # check for socket events and handle them
-                for response in self.poller.ipoll(1000):
-                    sock, event, *others = response
-                    is_handled = self.handle_dns(sock, event, others)
-                    if not is_handled:
-                        self.handle_http(sock, event, others)
+                if self.handle_socket_events():
+                    start_time = time.ticks_ms()  # increase timeout on communication
 
                 if self.check_valid_wifi():
                     print("Connected to WiFi!")
                     self.http_server.set_ip(self.local_ip, self.creds.ssid)
                     self.dns_server.stop(self.poller)
+                    ret = True
                     break
 
         except KeyboardInterrupt:
             print("Captive portal stopped")
         self.cleanup()
+
+        return ret
+
+    def handle_socket_events(self):
+        for response in self.poller.ipoll(1000):
+            sock, event, *others = response
+            if self.dns_server is not None and self.handle_dns(sock, event, others):
+                return True
+            if self.http_server is not None:
+                return self.handle_http(sock, event, others)
 
     def handle_dns(self, sock, event, others):
         if sock is self.dns_server.sock:
@@ -147,7 +161,7 @@ class CaptivePortal:
         return False
 
     def handle_http(self, sock, event, others):
-        self.http_server.handle(sock, event, others)
+        return self.http_server.handle(sock, event, others)
 
     def cleanup(self):
         print("Cleaning up")
@@ -158,15 +172,16 @@ class CaptivePortal:
     def try_connect_from_file(self):
         if self.creds.load().is_valid():
             if self.connect_to_wifi():
+                self.start_http_server()
                 return True
 
         # WiFi Connection failed - remove credentials from disk
         self.creds.remove()
         return False
 
-    def start(self):
+    def start(self, timeout):
         # turn off station interface to force a reconnect
         self.sta_if.active(False)
         if not self.try_connect_from_file():
-            self.captive_portal()
-
+            return self.captive_portal(timeout)  # Blocking Captive Portal
+        return True

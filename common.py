@@ -1,25 +1,26 @@
-from micropython import const
+try:
+    from micropython import const
+except:
+    const = lambda v: v
 
 SUNNY = const(0)
 CLOUDY = const(1)
 RAINY = const(2)
 SNOWY = const(3)
 
-global cfg
+global _cfg
 
 import os
 
 try: 
-    cfg
-    print("-----FOUND CFG!!!!")
+    _cfg
 except NameError:
-    print("-----NEW CFG")
     try:
         with open("cfg", "r") as f:
-            cfg = eval(f.read())
+            _cfg = eval(f.read())
     except OSError:
-        cfg = {"lat": 46.98457,
-               "lon": 8.30702,
+        _cfg = {"lat": 46.98,
+               "lon": 8.31,
                "foreindex": 4,
                "ap_id": "b7b444cf2b2026989fe60b68b32ff926",
                "min_level": 15,
@@ -34,27 +35,33 @@ def store_config(lat, lon, foreindex, ap_id,
                  min_level, min_lum, max_level, max_lum,
                  custom_pos, 
                  timeout, debug):
-    global cfg
-    cfg = {"lat": lat, 
-           "lon": lon, 
-           "foreindex": foreindex, 
-           "ap_id": ap_id,
-           "min_level": min_level,
-           "min_lum": min_lum,
-           "max_level": max_level,
-           "max_lum": max_lum,
-           "custom_pos": custom_pos,
-           "timeout": timeout, 
-           "debug": debug}
+    global _cfg
+    _cfg = {"lat": float(lat), 
+            "lon": float(lon), 
+            "foreindex": int(foreindex), 
+            "ap_id": str(ap_id),
+            "min_level": int(min_level),
+            "min_lum": int(min_lum),
+            "max_level": int(max_level),
+            "max_lum": int(max_lum),
+            "custom_pos": int(custom_pos),
+            "timeout": int(timeout), 
+            "debug": bool(debug)}
       
     with open("cfg", "w") as f:
-        f.write(str(cfg))
+        f.write(str(_cfg))
+
+def get_main_cfg():
+    return _cfg["debug"], _cfg["timeout"], 
 
 def get_luminance_cfg():
-    return cfg["min_level"], cfg["min_lum"], cfg["max_level"], cfg["max_lum"]
+    return _cfg["min_level"], _cfg["min_lum"], _cfg["max_level"], _cfg["max_lum"]
 
 def get_weather_cfg():
-    return cfg["lat"], cfg["lon"], cfg["foreindex"], cfg["ap_id"]
+    return _cfg["lat"], _cfg["lon"], _cfg["foreindex"], _cfg["ap_id"]
+
+def get_custompos_cfg():
+    return _cfg["custom_pos"], 
 
 def get_config():
-    return cfg
+    return _cfg
