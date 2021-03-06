@@ -75,33 +75,33 @@ def mode_switch():
 touchsensor = TouchSensor(32, mode_switch)
 if DEBUG_MODE or touchsensor.is_pressed():
     try:
-    ambient = BME280(i2c)
-    weather = Weather()
+        ambient = BME280(i2c)
+        weather = Weather()
 
-    mode_switch()
+        mode_switch()
 
         portal = CaptivePortal(get_measurements_for_web)
         if portal.start(MODE_TIMEOUT_MS):
             update_timeout()
-    time_synced = False
-    weather_synced = False
+            time_synced = False
+            weather_synced = False
 
             while time.ticks_ms() < mode_timeoutstamp:
-        if not time_synced:
-            if mytime.sync_from_ntp():
-                print("Time Synched over NTP")
-                time_synced = True
-            else:
-                print("Failed to Sync Time over NTP")
-        if not weather_synced:
-            if weather.update():
-                print("Weather Updated.")
-                weather_synced = True
-            else:
-                print("Failed to Sync Weather.")
+                if not time_synced:
+                    if mytime.sync_from_ntp():
+                        print("Time Synched over NTP")
+                        time_synced = True
+                    else:
+                        print("Failed to Sync Time over NTP")
+                if not weather_synced:
+                    if weather.update():
+                        print("Weather Updated.")
+                        weather_synced = True
+                    else:
+                        print("Failed to Sync Weather.")
                 if portal.handle_socket_events():
                     update_timeout()
-    except error as e:
+    except Exception as e:
         print("Error", repr(e), "in Mode Initialisation...")
         
 h, m = mytime.time
