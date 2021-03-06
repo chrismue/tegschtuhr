@@ -109,9 +109,21 @@ class CaptivePortal:
                 print("Turned off access point")
         return False
 
+    def list_networks(self):
+        if self.sta_if.active():
+            was_active = True
+        else:
+            was_active = False
+            self.sta_if.active(True)
+        networks = self.sta_if.scan()
+        if not was_active:
+            self.sta_if.active(False)
+        print(networks)
+        return networks
+
     def start_http_server(self):
         if self.http_server is None:
-            self.http_server = HTTPServer(self.poller, self.local_ip, self.mac_address, self.callback_for_measurements)
+            self.http_server = HTTPServer(self.poller, self.local_ip, self.mac_address, self.callback_for_measurements, self.list_networks)
             print("Configured HTTP server")
 
     def captive_portal(self, timeout):
@@ -146,7 +158,7 @@ class CaptivePortal:
         return ret
 
     def handle_socket_events(self):
-        for response in self.poller.ipoll(1000):
+        for response in self.poller.ipoll(100):
             sock, event, *others = response
             if self.dns_server is not None and self.handle_dns(sock, event, others):
                 return True

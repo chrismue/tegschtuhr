@@ -1,6 +1,7 @@
 from micropython import const
 import urequests
 import common
+import gc
 
 # https://openweathermap.org/weather-conditions#How-to-get-icon-URL
 """
@@ -38,8 +39,12 @@ class Weather:
 
     def update(self):
         try:
+            gc.collect()
+            print(self._url)
             resp = urequests.get(self._url)
+            print("Got weather data")
             data = resp.json()
+            print("parsed data")
             self.current_temp = data["current"]["temp"]
             print(data["hourly"][self._forecast_index])
             self.forecast_temp = data["hourly"][self._forecast_index]["temp"]

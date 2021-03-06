@@ -12,11 +12,14 @@ from localtime import LocalTime
 from ambient import BME280
 from weather import Weather
 
-from common import get_main_cfg
+from common import get_main_cfg, get_custompos_cfg
 
 CURRENT_MODE = 0  # 0: Time, 1: Temperature, 2: Humidity
 mode_timeoutstamp = 0
 DEBUG_MODE, MODE_TIMEOUT_MS = get_main_cfg()
+
+# import credentials
+# credentials.Creds().remove()
 
 def update_timeout():
     global mode_timeoutstamp
@@ -54,7 +57,7 @@ def mode_switch():
     elif CURRENT_MODE == 2:
         positions = textfinder.get_date_positions(*(mytime.date))
     elif CURRENT_MODE == 3:
-        positions = [[0,0], [2, 8], [6,5], [7, 4], [8,0]]  # B R U N O
+        positions = get_custompos_cfg()
     elif CURRENT_MODE == 4:
         positions = textfinder.get_temperature_positions(weather.current_temp)
     elif CURRENT_MODE == 5:
@@ -111,10 +114,13 @@ matrix.set_brightness(lightsensor.get_light_level())
 matrix.show_pixels(positions)
 CURRENT_MODE = 0
 
-if m % 5 == 0: # TODO
+if m % 5 == 0:
     rtc_sync_successful = mytime.sync_from_external_RTC()
     if not rtc_sync_successful or (h==3 and m==30):  # sync over NTP once a day
-        portal = CaptivePortal(get_measurements_for_web)
+        try: 
+            portal  # check if CaptivePortal already initialized and port in use
+        except NameError:
+            portal = CaptivePortal(get_measurements_for_web)
         if portal.try_connect_from_file():
             connected_time = time.ticks_ms()
             synced_once = False
