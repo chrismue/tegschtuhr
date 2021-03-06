@@ -50,6 +50,7 @@ def store_config(lat, lon, foreindex, ap_id,
     
     with open("cfg", "w") as f:
         f.write(str(_cfg))
+    print(_cfg)
 
 def get_main_cfg():
     return _cfg["debug"], _cfg["timeout"], 
@@ -61,7 +62,7 @@ def get_weather_cfg():
     return _cfg["lat"], _cfg["lon"], _cfg["foreindex"], _cfg["ap_id"]
 
 def get_custompos_cfg():
-    return _cfg["custom_pos"], 
+    return _cfg["custom_pos"]
 
 def get_config():
     return _cfg
