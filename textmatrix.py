@@ -39,7 +39,7 @@ class CharacterMatrix:
             found_in_one_row = False
             while not found_in_one_row:
                 found_start = cls.MATRIX.find(text.upper(), pos_in_matrix)
-                print("found", text, "at", found_start)
+                # print("found", text, "at", found_start)
                 if found_start < 0:
                     return []
                 found_end = found_start + len(text)            
@@ -71,8 +71,8 @@ class TextFinder:
 
     MINUTES_TEXTS = [["ES", "ESCH"], ["EIS", "AB"], ["ZWOI", "AB"], ["DRÜ", "AB"], ["VIER", "AB"], ["FÜF", "AB"], ["SÄCHS", "AB"], ["SEBE", "AB"], ["ACHT", "AB"], ["NÜN", "AB"], 
                      ["ZÄH", "AB"], ["ELF", "AB"], ["ZWÖLF", "AB"], ["DRI", "ZÄH", "AB"], ["VIER", "ZÄH", "AB"], ["VIERTEL", "AB"], ["SÄCH", "ZÄH", "AB"], ["SEB", "ZÄH", "AB"], ["ACHT", "ZÄH", "AB"], ["NÜN", "ZÄH", "AB"], 
-                     ["ZWÄNZG", "AB"], ["EIN", "E", "ZWÄNZG", "AB"], ["ZWOI", "E", "ZWÄNZG", "AB"], ["DRÜ", "E", "ZWÄNZG", "AB"], ["VIER", "E", "ZWÄNZG", "AB"], ["FÜF", "VOR", "HALBI"], ["SÄCHS", "E", "ZWÄNZG", "AB"], ["SEBEN", "E", "ZWÄNZG", "AB"], ["ACHT", "E", "ZWÄNZG", "AB"], ["NÜN", "E", "ZWÄNZG", "AB"],
-                     ["HALBI"], ["EIS", "AB", "HALBI"], ["ZWOI", "AB", "HALBI"], ["DRÜ", "AB", "HALBI"], ["VIER", "AB", "HALBI"], ["FÜF", "AB", "HALBI"], ["VIER", "E", "ZWÄNZG", "VOR"], ["DRÜ", "E", "ZWÄNZG", "VOR"], ["ZWOI", "E", "ZWÄNZG", "VOR"], ["EIN", "E", "ZWÄNZG", "VOR"], ["ZWÄNZG", "VOR"],
+                     ["ZWÄNZG", "AB"], ["EIN", "E", "ZWÄNZG", "AB"], ["ZWOI", "E", "ZWÄNZG", "AB"], ["DRÜ", "E", "ZWÄNZG", "AB"], ["VIER", "E", "ZWÄNZG", "AB"], ["FÜF", "VOR", "HALBI"], ["VIER", "VOR", "HALBI"], ["DRÜ", "VOR", "HALBI"], ["ZWOI", "VOR", "HALBI"], ["EIS", "VOR", "HALBI"],
+                     ["HALBI"], ["EIS", "AB", "HALBI"], ["ZWOI", "AB", "HALBI"], ["DRÜ", "AB", "HALBI"], ["VIER", "AB", "HALBI"], ["FÜF", "AB", "HALBI"], ["SÄCHS", "AB", "HALBI"], ["SEBE", "AB", "HALBI"], ["ACHT", "AB", "HALBI"], ["NÜN", "AB", "HALBI"], ["ZWÄNZG", "VOR"],
                      ["NÜN", "ZÄH", "VOR"], ["ACHT", "ZÄH", "VOR"], ["SEB", "ZÄH", "VOR"], ["SÄCH", "ZÄH", "VOR"], ["VIERTEL", "VOR"], ["VIER", "ZÄH", "VOR"], ["DRI", "ZÄH", "VOR"], ["ZWÖLF", "VOR"], ["ELF", "VOR"], ["ZÄH", "VOR"],
                      ["NÜN", "VOR"], ["ACHT", "VOR"], ["SEBE", "VOR"], ["SÄCHS", "VOR"], ["FÜF", "VOR"], ["VIER", "VOR"], ["DRÜ", "VOR"], ["ZWOI", "VOR"], ["EIS", "VOR"]]
 
@@ -106,7 +106,7 @@ class TextFinder:
 
     def get_time_positions(self, hours, minutes):
         print("Searching", hours, ":", minutes)
-        if minutes == 25 or minutes >= 30:  # We say "Halbi <Next Hour>"
+        if minutes >= 25:  # We say "Halbi <Next Hour>" and "zäh vor <Next Hour>"
             hours = hours + 1
         return self._matrix.findTexts(self._get_minutes_text(minutes) + self._get_hours_text(hours))
 

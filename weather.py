@@ -41,9 +41,11 @@ class Weather:
             resp = urequests.get(self._url)
             data = resp.json()
             self.current_temp = data["current"]["temp"]
+            print(data["hourly"][self._forecast_index])
             self.forecast_temp = data["hourly"][self._forecast_index]["temp"]
             icon = data["hourly"][self._forecast_index]["weather"][0]["icon"]
             self.forecast_icon = icons[icon[:2]]
+            print(self.forecast_icon)
             return True
         except:
             return False

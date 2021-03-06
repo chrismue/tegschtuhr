@@ -20,7 +20,9 @@ class CaptivePortal:
         self.sta_if = network.WLAN(network.STA_IF)
         self.ap_if = network.WLAN(network.AP_IF)
 
-        self.mac_address = str(binascii.hexlify(self.sta_if.config("mac"))).upper()
+        mac = str(binascii.hexlify(self.sta_if.config("mac"))).upper()[2:-1]
+        self.mac_address = mac[0:2] + ":" + mac[2:4] + ":" + mac[4:6] + ":" + \
+                           mac[6:8] + ":" + mac[8:10] + ":" + mac[10:12]
 
         if essid is None:
             essid = b"Tegschtuhr-%s" % binascii.hexlify(self.ap_if.config("mac")[-3:])
@@ -51,12 +53,13 @@ class CaptivePortal:
     def connect_to_wifi(self):
         print(
             "Trying to connect to SSID '{:s}' with password {:s}".format(
-                self.creds.ssid, self.creds.password
+                self.creds.ssid, "*"*len(self.creds.password)
             )
         )
 
         # initiate the connection
         self.sta_if.active(True)
+        self.sta_if.config(dhcp_hostname="tegschtuhr")
         self.sta_if.connect(self.creds.ssid, self.creds.password)
 
         attempts = 1
@@ -66,9 +69,8 @@ class CaptivePortal:
                 time.sleep(2)
                 attempts += 1
             else:
-                print("Connected to {:s}".format(self.creds.ssid))
                 self.local_ip = self.sta_if.ifconfig()[0]
-                self.sta_if.config(dhcp_hostname="tegschtuhr")
+                print("Connected to {:s} with IP {:s}".format(self.creds.ssid, self.local_ip))
                 return True
 
         print(
