@@ -62,10 +62,12 @@ class HTTPServer(Server):
             # socket has data to read in
             print("- Reading incoming HTTP data")
             self.read(sock)
+            return True
         elif event & select.POLLOUT:
             # existing connection has space to send more data
             # print("- Sending outgoing HTTP data")
             self.write_to(sock)
+            return True
         return False
 
     def accept(self, server_sock):
@@ -121,7 +123,6 @@ class HTTPServer(Server):
         )
         info = common.get_config()
         info["act_temperature"], info["act_humidity"], info["act_pressure"], info["act_brightness"] = self.callback_for_measurements()
-        info["act_pressure"] = 12345
         info["mac_address"] = self.mac_address
         info["ssid"] = Creds().load().ssid
         info["av_networks"] = self.callback_for_networks()
