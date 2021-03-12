@@ -23,9 +23,7 @@ DEBUG_MODE, MODE_TIMEOUT_MS = get_main_cfg()
 
 def update_timeout():
     global mode_timeoutstamp
-    print(repr(MODE_TIMEOUT_MS))
     mode_timeoutstamp = time.ticks_ms() + MODE_TIMEOUT_MS
-    print("Updated Timeout to", mode_timeoutstamp)
 
 #Initialize Hardware
 matrix = Max7219Chain(1, cs_pinnr=27, sck_pinnr=14, mosi_pinnr=13, miso_pinnr=12)
@@ -85,7 +83,7 @@ if DEBUG_MODE or touchsensor.is_pressed():
 
         mode_switch()
 
-        portal = CaptivePortal(get_measurements_for_web)
+        portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
         if portal.start(MODE_TIMEOUT_MS):
             update_timeout()
             time_synced = False
@@ -122,7 +120,7 @@ if m % 5 == 0:
         try: 
             portal  # check if CaptivePortal already initialized and port in use
         except NameError:
-            portal = CaptivePortal(get_measurements_for_web)
+            portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
         if portal.try_connect_from_file():
             connected_time = time.ticks_ms()
             synced_once = False

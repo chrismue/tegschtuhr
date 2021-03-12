@@ -14,8 +14,9 @@ class CaptivePortal:
     AP_OFF_DELAY = const(10 * 1000)
     MAX_CONN_ATTEMPTS = 10
 
-    def __init__(self, callback_for_measurements, essid=None):
+    def __init__(self, callback_for_measurements, callback_for_lightlevel, essid=None):
         self.callback_for_measurements = callback_for_measurements
+        self.callback_for_lightlevel = callback_for_lightlevel
         self.local_ip = self.AP_IP
         self.sta_if = network.WLAN(network.STA_IF)
         self.ap_if = network.WLAN(network.AP_IF)
@@ -123,7 +124,7 @@ class CaptivePortal:
 
     def start_http_server(self):
         if self.http_server is None:
-            self.http_server = HTTPServer(self.poller, self.local_ip, self.mac_address, self.callback_for_measurements, self.list_networks)
+            self.http_server = HTTPServer(self.poller, self.local_ip, self.mac_address, self.callback_for_measurements, self.list_networks, self.callback_for_lightlevel)
             print("Configured HTTP server")
 
     def captive_portal(self, timeout):

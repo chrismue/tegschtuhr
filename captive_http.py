@@ -21,7 +21,7 @@ import re
 _charref = re.compile(r'%([0-9a-fA-F][0-9a-fA-F])')
 
 class HTTPServer(Server):
-    def __init__(self, poller, local_ip, mac_address, callback_for_measurements, callback_for_networks):
+    def __init__(self, poller, local_ip, mac_address, callback_for_measurements, callback_for_networks, callback_for_lightlevel):
         super().__init__(poller, 80, socket.SOCK_STREAM, "HTTP Server")
         if type(local_ip) is bytes:
             self.local_ip = local_ip
@@ -30,12 +30,14 @@ class HTTPServer(Server):
         self.mac_address = mac_address
         self.callback_for_measurements = callback_for_measurements
         self.callback_for_networks = callback_for_networks
+        self.callback_for_lightlevel = callback_for_lightlevel
         self.request = dict()
         self.conns = dict()
         self.routes = {b"/": b"./index.html",
                        b"/get_info": self.get_info,
                        b"/login": self.login,
-                       b"/settings": self.settings}
+                       b"/settings": self.settings,
+                       b"/lightprev": self.prev_light}
 
         self.ssid = None
 
@@ -127,6 +129,11 @@ class HTTPServer(Server):
         info["ssid"] = Creds().load().ssid
         info["av_networks"] = self.callback_for_networks()
         return ujson.dumps(info), headers
+
+    def prev_light(self, params):
+        prev_level = int(params.get(b"prev_level", 15))
+        self.callback_for_lightlevel(prev_level)
+        return self._redirect_response()
 
     def login(self, params):
         ssid = params.get(b"ssid", None)

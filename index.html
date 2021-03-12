@@ -390,15 +390,18 @@
     <h2>Fertig</h2>
     <input type="submit" value="Istellige ändere!">
   </form>
+  <form action="/lightprev" method="get" class="box">
+    <h2>Helligkeit aluege</h2>
+    <label for="prev_level">Helligkeitsstufe:</label><br>
+    <input type="number" min="0" max="15" id="prev_level" value="15" name="prev_level" required><br>
+    <input type="submit" value="Mol Luege">
+  </form>
   <form action="/login" method="get" class="box">
     <h2>Netzwärch</h2>
     <p>MAC-Adressi <span id="mac_addr"></span></p>
     <label for="ssid">SSID:</label><br>
     <input type="text" id="ssid" name="ssid" value="" list="available_networks" required>
-      <datalist id="available_networks">
-        <option value="WiFi1"> </option>
-        <option value="Wifi2"> </option>
-      </datalist><br>
+      <datalist id="available_networks"></datalist><br>
     <label for="password">Passwort:</label><br>
     <input type="password" name="password"></body>
     <input type="submit" value="Netzwärch ändere">
