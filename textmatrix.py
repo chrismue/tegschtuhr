@@ -69,6 +69,10 @@ class TextFinder:
 
     PERCENT = [[4,10], [4,13], [5,12], [6,11], [7,10], [7,13]]
 
+    LUM = [[9, 3], [10, 3], [11, 3], 
+           [10, 5], [11, 5], [11, 6], [10, 7], [11, 7], 
+           [10, 9], [11, 9], [10, 10], [10, 11], [11, 11], [10, 12], [10, 13], [11, 13]]
+    
     MINUTES_TEXTS = [["ES", "ESCH"], ["EIS", "AB"], ["ZWOI", "AB"], ["DRÜ", "AB"], ["VIER", "AB"], ["FÜF", "AB"], ["SÄCHS", "AB"], ["SEBE", "AB"], ["ACHT", "AB"], ["NÜN", "AB"], 
                      ["ZÄH", "AB"], ["ELF", "AB"], ["ZWÖLF", "AB"], ["DRI", "ZÄH", "AB"], ["VIER", "ZÄH", "AB"], ["VIERTEL", "AB"], ["SÄCH", "ZÄH", "AB"], ["SEB", "ZÄH", "AB"], ["ACHT", "ZÄH", "AB"], ["NÜN", "ZÄH", "AB"], 
                      ["ZWÄNZG", "AB"], ["EIN", "E", "ZWÄNZG", "AB"], ["ZWOI", "E", "ZWÄNZG", "AB"], ["DRÜ", "E", "ZWÄNZG", "AB"], ["VIER", "E", "ZWÄNZG", "AB"], ["FÜF", "VOR", "HALBI"], ["VIER", "VOR", "HALBI"], ["DRÜ", "VOR", "HALBI"], ["ZWOI", "VOR", "HALBI"], ["EIS", "VOR", "HALBI"],
@@ -134,6 +138,23 @@ class TextFinder:
         if month >= 10:
             positions += [[p[0]+6, p[1]+3] for p in self.PIXEL_NUMBERS[month // 10]]
         return positions + [[5, 13], [11, 13]]
+
+    def get_luminance_position(self, luminance):
+        print("Searching Lum.", luminance)
+        luminance_int = min(int(round(luminance,0)), 999)
+        if luminance_int >= 100:
+            hun_positions = self.PIXEL_NUMBERS[luminance_int // 100]
+        else:
+            hun_positions = []
+        if luminance_int >= 10:
+            ten_positions = self.PIXEL_NUMBERS[(luminance_int // 10) % 10]
+        else:
+            ten_positions = []
+        one_positions = self.PIXEL_NUMBERS[luminance_int % 10]
+        return [[p[0]+2, p[1]] for p in hun_positions] + \
+               [[p[0]+2, p[1]+5] for p in ten_positions] + \
+               [[p[0]+2, p[1]+10] for p in one_positions] + \
+               self.LUM
 
     def get_weather_positions(self, weather_code):
         return self.WEATHER[weather_code]
