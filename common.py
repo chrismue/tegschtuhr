@@ -23,10 +23,10 @@ except NameError:
                 "lon": 8.31,
                 "foreindex": 4,
                 "ap_id": "<Your OpenWeather-API-Key>",
-                "min_level": 13,
-                "min_lum": 14,
+                "min_level": 5,
+                "min_lum": 0,
                 "max_level": 15,
-                "max_lum": 100,
+                "max_lum": 10,
                 "custom_pos": [[0,0], [2, 8], [6,5], [7, 4], [8,0]],
                 "timeout": 40000,
                 "debug": False}
