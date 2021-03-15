@@ -31,6 +31,7 @@ class Weather:
     def __init__(self, lat=None, lon=None, appid=None, forecast_index=None):
         if lat is None or lon is None or appid is None or forecast_index is None:
             lat, lon, forecast_index, appid = common.get_weather_cfg()
+        self.got_data = False
         self._url = "https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&units=metric&exclude=minutely,daily&appid={}".format(lat, lon, appid)
         self._forecast_index = forecast_index
         self.current_temp = 0.0
@@ -51,6 +52,7 @@ class Weather:
             icon = data["hourly"][self._forecast_index]["weather"][0]["icon"]
             self.forecast_icon = icons[icon[:2]]
             print(self.forecast_icon)
+            self.got_data = True
             return True
         except:
             return False

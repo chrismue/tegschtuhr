@@ -58,20 +58,20 @@ def mode_switch():
         positions = textfinder.get_date_positions(*(mytime.date))
     elif CURRENT_MODE == 4:
         positions = get_custompos_cfg()
-    elif CURRENT_MODE == 5:
+    elif weather.got_data and CURRENT_MODE == 5:
         positions = textfinder.get_temperature_positions(weather.current_temp)
-    elif CURRENT_MODE == 6:
+    elif weather.got_data and CURRENT_MODE == 6:
         positions = textfinder.get_temperature_positions(weather.forecast_temp)
-    elif CURRENT_MODE == 7:
+    elif weather.got_data and CURRENT_MODE == 7:
         positions = textfinder.get_weather_positions(weather.forecast_icon)
-    elif CURRENT_MODE == 8:
+    elif (weather.got_data and CURRENT_MODE >= 8) or (not weather.got_data and CURRENT_MODE >= 5):
         for y in range(14):
             positions += [[x,y] for x in range(12)]
     matrix.show_pixels(positions)
-    if CURRENT_MODE < 8:
-        CURRENT_MODE = CURRENT_MODE + 1
-    else: 
+    if (weather.got_data and CURRENT_MODE >= 8) or (not weather.got_data and CURRENT_MODE >= 5):
         CURRENT_MODE = 0
+    else:
+        CURRENT_MODE = CURRENT_MODE + 1
     
     update_timeout()
 
