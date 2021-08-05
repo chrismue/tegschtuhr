@@ -117,7 +117,7 @@ class TextFinder:
     def get_temperature_positions(self, temperature):
         print("Searching Temp.", temperature)
         sign = [self.MINUS] if temperature < 0 else []
-        before = int(round(abs(temperature), 0))
+        before = int(abs(temperature))
         after = int(round(abs(temperature) * 10, 0)) % 10
         after_texts = [self.DOT] + self.TEMP_AFTER_DIGIT[after] if after != 0 else []
         return self._matrix.findTexts(sign + self.TEMP_BEFORE_DIGIT[before] + after_texts + [self.DEGREE])
