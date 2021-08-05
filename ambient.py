@@ -152,6 +152,8 @@ class BME280:
         self._load_calibration()
         self._device.write8(REG_CONTROL, 0x3F)
         self.t_fine = 0
+        # First measurement after power up is invalid, read here once
+        _ = self.temperature
 
     def _load_calibration(self):
 
