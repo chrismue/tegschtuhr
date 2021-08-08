@@ -82,7 +82,7 @@ class Max7219Chain:
 
     def reset_buffer(self):
         self._buffer = bytearray(8*3)
-        
+
     def add_pixels(self, positions):
         for pos in positions:
             self.add_pixel(pos[0], pos[1])
@@ -97,7 +97,7 @@ class Max7219Chain:
         else:
             driver_nr = 2
             if c<7:
-                digit_nr = r - 8 
+                digit_nr = r - 8
             else:
                 digit_nr = r - 4
         offset = c % 7
@@ -106,7 +106,7 @@ class Max7219Chain:
         self.show()
 
     def show_pixels(self, positions):
-        print("showing", positions)
+        # print("showing", positions)
         self.reset_buffer()
         self.add_pixels(positions)
         self.show()

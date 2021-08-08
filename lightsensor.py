@@ -80,5 +80,5 @@ class BH1750():
                 l = max_level
             else:
                 l = round(min_level + (max_level - min_level) / (max_lum - min_lum) * (lum - min_lum), 0)
-            print(lum, "->", l, "(", min_level, "@", min_lum, ",", max_level, "@", max_lum, ")")
+            # print(lum, "->", l, "(", min_level, "@", min_lum, ",", max_level, "@", max_lum, ")")
         return int(l)
