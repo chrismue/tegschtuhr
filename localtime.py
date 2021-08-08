@@ -30,12 +30,13 @@ class LocalTime:
 
     @property
     def local_datetime(self):
-        y, mo, d, wd, h, mi, s, us = self._internal_rtc.datetime()
-        return utime.localtime(utime.mktime((y, mo, d, wd, h, mi, s, us)) + 3600 + 3600*self.daylight_saving(mo, d, wd, h))
+        y, mo, d, wd, h, mi, s, _ = self._internal_rtc.datetime()
+        y, mo, d, h, mi, s, wd, yd = utime.localtime(utime.mktime((y, mo, d, h, mi, s, wd, 0)) + 3600 + 3600*self.daylight_saving(mo, d, wd, h))
+        return mo, d, h, mi
 
     @property
     def time(self):
-        _, _, _, _, h, m, _, _ = self.local_datetime
+        _, _, h, m = self.local_datetime
         return h, m
 
     @property
@@ -45,7 +46,7 @@ class LocalTime:
 
     @property
     def date(self):
-        _, month, day, _, _, _, _, _ = local_datetime
+        month, day, _, _ = self.local_datetime
         return day, month
 
 
