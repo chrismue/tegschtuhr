@@ -32,6 +32,8 @@ textfinder = TextFinder()
 mytime = LocalTime(i2c)
 lightsensor = BH1750(i2c)
 
+matrix.set_brightness(lightsensor.get_light_level())
+
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print("Woke from deep sleep...")
 else:
@@ -109,7 +111,6 @@ if DEBUG_MODE or touchsensor.is_pressed():
 h, m = mytime.time
 print("Finding", h, ":", m)
 positions = textfinder.get_time_positions(h,m)
-matrix.set_brightness(lightsensor.get_light_level())
 matrix.show_pixels(positions)
 CURRENT_MODE = 0
 
