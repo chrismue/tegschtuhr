@@ -1,12 +1,13 @@
 from externalrtc import DS1307
 from machine import RTC
 import ntptime
+import utime
 
 class LocalTime:
     def __init__(self, i2c):
         self._external_rtc = DS1307(i2c)
         self._internal_rtc = RTC()
-    
+
     def sync_from_external_RTC(self):
         try:
             self._internal_rtc.datetime(self._external_rtc.datetime())
@@ -28,21 +29,23 @@ class LocalTime:
         return True
 
     @property
+    def local_datetime(self):
+        y, mo, d, wd, h, mi, s, us = self._internal_rtc.datetime()
+        return utime.localtime(utime.mktime((y, mo, d, wd, h, mi, s, us)) + 3600 + 3600*self.daylight_saving(mo, d, wd, h))
+
+    @property
     def time(self):
-        _, month, day, weekday, h, m, _, _ = self._internal_rtc.datetime()
-        return h + 1 + self.daylight_saving(month, day, weekday, h), m
+        _, _, _, _, h, m, _, _ = self.local_datetime
+        return h, m
 
     @property
     def seconds_to_next_minute(self):
         _, _, _, _, _, _, s, us = self._internal_rtc.datetime()
         return 60 - (s + (us/1000000))
-    
+
     @property
     def date(self):
-        _, month, day, weekday, h, _, _, _ = self._internal_rtc.datetime()
-        # check if daylight saving leads to next day
-        if h + 1 + self.daylight_saving(month, day, weekday, h) >= 24:
-            day = day + 1
+        _, month, day, _, _, _, _, _ = local_datetime
         return day, month
 
 
