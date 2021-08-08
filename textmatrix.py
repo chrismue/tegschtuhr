@@ -17,7 +17,7 @@ from common import SUNNY, CLOUDY, RAINY, SNOWY
 
 
 class CharacterMatrix:
-    MATRIX = "BMINUSACHTNOLL" + \
+    MATRIX = "KMINUSACHTNOLL" + \
              "EINZWOIVIERDRÜ" + \
              "ZWÖLFNÜNRFÖFÜF" + \
              "ESEBENSÄCHSEIS" + \
@@ -26,11 +26,11 @@ class CharacterMatrix:
              "VORABUESCHALBI" + \
              "ELFINRACHTIDRÜ" + \
              "OKEISÄCHSINÜNI" + \
-             "SEBNIGMNZÄHNIU" + \
+             "SEBNIGUNZÄHNIU" + \
              "FÜFISEBEZWÖLFI" + \
              "ZWOIEVIERIGRAD"
     ROW_LEN = 14
-    
+
     @classmethod
     def findTexts(cls, texts_array):
         result_coordinates = []
@@ -42,13 +42,13 @@ class CharacterMatrix:
                 # print("found", text, "at", found_start)
                 if found_start < 0:
                     return []
-                found_end = found_start + len(text)            
+                found_end = found_start + len(text)
                 if found_start % cls.ROW_LEN + len(text) <= cls.ROW_LEN: # result is on one line
                     result_coordinates.extend([(p // cls.ROW_LEN, p % cls.ROW_LEN) for p in range(found_start, found_end)])
                     found_in_one_row = True
                 pos_in_matrix = found_end
         return result_coordinates
-    
+
 
 class TextFinder:
     PIXEL_NUMBERS=[[[0,1], [0,2], [1,0], [1,3], [2,0], [2,3], [3,0], [3,3], [4,0], [4,3], [5,1], [5,2]],
@@ -61,20 +61,20 @@ class TextFinder:
                    [[0,0], [0,1], [0,2], [0,3], [1,3], [2,2], [3,2], [4,2], [5,2]],
                    [[0,1], [0,2], [1,0], [1,3], [2,1], [2,2], [3,0], [3,3], [4,0], [4,3], [5,1], [5,2]],
                    [[0,1], [0,2], [1,0], [1,3], [2,0], [2,3], [3,1], [3,2], [3,3], [4,3], [5,0], [5,1], [5,2]]]
-    
-    WEATHER = {SUNNY: [[0,5], [1,5], [2,5], [3,5], [4,5], [5,5]], 
-               CLOUDY: [[5,1], [6,1], [7,1], [8,1], [9,1]], 
-               RAINY: [[7,5], [8,5], [9,5], [10,5]], 
+
+    WEATHER = {SUNNY: [[0,5], [1,5], [2,5], [3,5], [4,5], [5,5]],
+               CLOUDY: [[5,1], [6,1], [7,1], [8,1], [9,1]],
+               RAINY: [[7,5], [8,5], [9,5], [10,5]],
                SNOWY: [[6,7], [7,7], [8,7], [9,7], [10,7], [11,7]]}
 
     PERCENT = [[4,10], [4,13], [5,12], [6,11], [7,10], [7,13]]
 
-    LUM = [[9, 3], [10, 3], [11, 3], 
-           [10, 5], [11, 5], [11, 6], [10, 7], [11, 7], 
+    LUM = [[9, 3], [10, 3], [11, 3],
+           [10, 5], [11, 5], [11, 6], [10, 7], [11, 7],
            [10, 9], [11, 9], [10, 10], [10, 11], [11, 11], [10, 12], [10, 13], [11, 13]]
-    
-    MINUTES_TEXTS = [["ES", "ESCH"], ["EIS", "AB"], ["ZWOI", "AB"], ["DRÜ", "AB"], ["VIER", "AB"], ["FÜF", "AB"], ["SÄCHS", "AB"], ["SEBE", "AB"], ["ACHT", "AB"], ["NÜN", "AB"], 
-                     ["ZÄH", "AB"], ["ELF", "AB"], ["ZWÖLF", "AB"], ["DRI", "ZÄH", "AB"], ["VIER", "ZÄH", "AB"], ["VIERTEL", "AB"], ["SÄCH", "ZÄH", "AB"], ["SEB", "ZÄH", "AB"], ["ACHT", "ZÄH", "AB"], ["NÜN", "ZÄH", "AB"], 
+
+    MINUTES_TEXTS = [["ES", "ESCH"], ["EIS", "AB"], ["ZWOI", "AB"], ["DRÜ", "AB"], ["VIER", "AB"], ["FÜF", "AB"], ["SÄCHS", "AB"], ["SEBE", "AB"], ["ACHT", "AB"], ["NÜN", "AB"],
+                     ["ZÄH", "AB"], ["ELF", "AB"], ["ZWÖLF", "AB"], ["DRI", "ZÄH", "AB"], ["VIER", "ZÄH", "AB"], ["VIERTEL", "AB"], ["SÄCH", "ZÄH", "AB"], ["SEB", "ZÄH", "AB"], ["ACHT", "ZÄH", "AB"], ["NÜN", "ZÄH", "AB"],
                      ["ZWÄNZG", "AB"], ["EIN", "E", "ZWÄNZG", "AB"], ["ZWOI", "E", "ZWÄNZG", "AB"], ["DRÜ", "E", "ZWÄNZG", "AB"], ["VIER", "E", "ZWÄNZG", "AB"], ["FÜF", "VOR", "HALBI"], ["VIER", "VOR", "HALBI"], ["DRÜ", "VOR", "HALBI"], ["ZWOI", "VOR", "HALBI"], ["EIS", "VOR", "HALBI"],
                      ["HALBI"], ["EIS", "AB", "HALBI"], ["ZWOI", "AB", "HALBI"], ["DRÜ", "AB", "HALBI"], ["VIER", "AB", "HALBI"], ["FÜF", "AB", "HALBI"], ["SÄCHS", "AB", "HALBI"], ["SEBE", "AB", "HALBI"], ["ACHT", "AB", "HALBI"], ["NÜN", "AB", "HALBI"], ["ZWÄNZG", "VOR"],
                      ["NÜN", "ZÄH", "VOR"], ["ACHT", "ZÄH", "VOR"], ["SEB", "ZÄH", "VOR"], ["SÄCH", "ZÄH", "VOR"], ["VIERTEL", "VOR"], ["VIER", "ZÄH", "VOR"], ["DRI", "ZÄH", "VOR"], ["ZWÖLF", "VOR"], ["ELF", "VOR"], ["ZÄH", "VOR"],
@@ -82,7 +82,7 @@ class TextFinder:
 
     HOURS_TEXTS = ["ZWÖLFI", "EIS", "ZWOI", "DRÜ", "VIERI", "FÜFI", "SÄCHSI", "SEBNI", "ACHTI", "NÜNI", "ZÄHNI", "ELFI"]
 
-    TEMP_BEFORE_DIGIT = [["NOLL"], ["EIS"], ["ZWOI"], ["DRÜ"], ["VIER"], ["FÜF"], ["SÄCHS"], ["SEBE"], ["ACHT"], ["NÜN"],  
+    TEMP_BEFORE_DIGIT = [["NOLL"], ["EIS"], ["ZWOI"], ["DRÜ"], ["VIER"], ["FÜF"], ["SÄCHS"], ["SEBE"], ["ACHT"], ["NÜN"],
                          ["ZÄH"], ["ELF"], ["ZWÖLF"], ["DRI", "ZÄH"], ["VIER", "ZÄH"], ["FÖF", "ZÄH"], ["SÄCH", "ZÄH"], ["SEBE", "ZÄH"], ["ACHT", "ZÄH"], ["NÜN", "ZÄH"],
                          ["ZWÄNZG"], ["EIN", "E", "ZWÄNZG"], ["ZWOI", "E", "ZWÄNZG"], ["DRÜ", "E", "ZWÄNZG"], ["VIER", "E", "ZWÄNZG"], ["FÜF", "E", "ZWÄNZG"], ["SÄCHS", "E", "ZWÄNZG"], ["SEBEN", "E", "ZWÄNZG"], ["ACHT", "E", "ZWÄNZG"], ["NÜN", "E", "ZWÄNZG"],
                          ["DRISG"], ["EIN", "E", "DRISG"], ["ZWOI", "E", "DRISG"], ["DRÜ", "E", "DRISG"], ["VIER", "E", "DRISG"], ["FÜF", "E", "DRISG"], ["SÄCHS", "E", "DRISG"], ["SEBEN", "E", "DRISG"], ["ACHT", "E", "DRISG"], ["NÜN", "E", "DRISG"]]
@@ -92,7 +92,7 @@ class TextFinder:
     MINUS = "MINUS"
     DOT = "KOMMA"
     DEGREE = "GRAD"
-    
+
     def __init__(self):
         self._matrix = CharacterMatrix
 
@@ -103,7 +103,7 @@ class TextFinder:
         #except IndexError:
         #    print(f"Illegal Minute Value: {minutes}")
         #    return []
-        
+
     #@classmethod
     def _get_hours_text(self, hours):
         return [self.HOURS_TEXTS[hours % 12]]  # zero == twelve, 13..24 == 1..12
@@ -158,7 +158,7 @@ class TextFinder:
 
     def get_weather_positions(self, weather_code):
         return self.WEATHER[weather_code]
- 
+
 
 if __name__ == "__main__":
     import time
