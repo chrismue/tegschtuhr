@@ -1,5 +1,3 @@
-from captive_portal import CaptivePortal
-
 import time
 import machine
 from machine import I2C, Pin
@@ -72,7 +70,7 @@ def mode_switch():
         CURRENT_MODE = 0
     else:
         CURRENT_MODE = CURRENT_MODE + 1
-    
+
     update_timeout()
 
 touchsensor = TouchSensor(32, mode_switch)
@@ -83,6 +81,7 @@ if DEBUG_MODE or touchsensor.is_pressed():
 
         mode_switch()
 
+        from captive_portal import CaptivePortal
         portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
         if portal.start(MODE_TIMEOUT_MS):
             update_timeout()
@@ -106,7 +105,7 @@ if DEBUG_MODE or touchsensor.is_pressed():
                     update_timeout()
     except Exception as e:
         print("Error", repr(e), "in Mode Initialisation...")
-        
+
 h, m = mytime.time
 print("Finding", h, ":", m)
 positions = textfinder.get_time_positions(h,m)
@@ -117,9 +116,10 @@ CURRENT_MODE = 0
 if m % 5 == 0:
     rtc_sync_successful = mytime.sync_from_external_RTC()
     if not rtc_sync_successful or (h==3 and m==30):  # sync over NTP once a day
-        try: 
+        try:
             portal  # check if CaptivePortal already initialized and port in use
         except NameError:
+            from captive_portal import CaptivePortal
             portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
         if portal.try_connect_from_file():
             connected_time = time.ticks_ms()
