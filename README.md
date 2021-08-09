@@ -9,3 +9,4 @@ Based on
  * https://github.com/mcauser/micropython-tinyrtc-i2c/blob/master/ds1307.py
  * https://github.com/PinkInk/upylib/blob/master/bh1750/bh1750/__init__.py
  * https://github.com/mcauser/micropython-max7219/blob/master/max7219.py
+ * https://github.com/rdehuyss/micropython-ota-updater/
