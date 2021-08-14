@@ -45,7 +45,10 @@ def get_measurements_for_web():
     return ambient.temperature, ambient.humidity, ambient.pressure, lightsensor.luminance(), current_version, latest_version
 
 def update_for_web():
-    otaUpdater.download_version_and_reset(latest_version)
+    try:
+        otaUpdater.download_version_and_reset(latest_version)
+    except:
+        pass
 
 def mode_switch():
     global CURRENT_MODE
@@ -97,8 +100,6 @@ if DEBUG_MODE or touchsensor.is_pressed():
             version_synced = False
             retry_weather = 0
 
-            from ota_updater import OTAUpdater
-            otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="")
             while time.ticks_ms() < mode_timeoutstamp:
                 if not time_synced:
                     if mytime.sync_from_ntp():
@@ -114,6 +115,11 @@ if DEBUG_MODE or touchsensor.is_pressed():
                         print("Failed to Sync Weather ("+str(retry_weather)+")")
                         retry_weather = retry_weather + 1
                 if not version_synced:
+                    try:
+                        otaUpdater
+                    except NameError:
+                        from ota_updater import OTAUpdater
+                        otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="")
                     version_synced, current_version, latest_version = otaUpdater.check_for_new_version()
                     print("Version", current_version, latest_version)
                 if portal.handle_socket_events():

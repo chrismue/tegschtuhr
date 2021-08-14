@@ -44,6 +44,7 @@ class Weather:
             print(self._url)
             resp = urequests.get(self._url)
             print("Got weather data")
+            gc.collect()
             data = resp.json()
             print("parsed data")
             self.current_temp = data["current"]["temp"]
