@@ -44,6 +44,9 @@ else:
 def get_measurements_for_web():
     return ambient.temperature, ambient.humidity, ambient.pressure, lightsensor.luminance(), current_version, latest_version
 
+def update_for_web():
+    otaUpdater.download_version_and_reset(latest_version)
+
 def mode_switch():
     global CURRENT_MODE
     update_timeout()
@@ -86,7 +89,7 @@ if DEBUG_MODE or touchsensor.is_pressed():
         mode_switch()
 
         from captive_portal import CaptivePortal
-        portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
+        portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness, update_for_web)
         if portal.start(MODE_TIMEOUT_MS):
             update_timeout()
             time_synced = False
@@ -111,8 +114,6 @@ if DEBUG_MODE or touchsensor.is_pressed():
                 if not version_synced:
                     version_synced, current_version, latest_version = otaUpdater.check_for_new_version()
                     print("Version", current_version, latest_version)
-                    if latest_version > current_version:
-                        otaUpdater.download_version_and_reset(latest_version)
                 if portal.handle_socket_events():
                     update_timeout()
     except Exception as e:
@@ -131,7 +132,7 @@ if m % 5 == 0:
             portal  # check if CaptivePortal already initialized and port in use
         except NameError:
             from captive_portal import CaptivePortal
-            portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
+            portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness, update_for_web)
         if portal.try_connect_from_file():
             connected_time = time.ticks_ms()
             synced_once = False
