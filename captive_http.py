@@ -21,7 +21,7 @@ import re
 _charref = re.compile(r'%([0-9a-fA-F][0-9a-fA-F])')
 
 class HTTPServer(Server):
-    def __init__(self, poller, local_ip, mac_address, callback_for_measurements, callback_for_networks, callback_for_lightlevel):
+    def __init__(self, poller, local_ip, mac_address, callback_for_measurements, callback_for_networks, callback_for_lightlevel, callback_for_update):
         super().__init__(poller, 80, socket.SOCK_STREAM, "HTTP Server")
         if type(local_ip) is bytes:
             self.local_ip = local_ip
@@ -31,12 +31,14 @@ class HTTPServer(Server):
         self.callback_for_measurements = callback_for_measurements
         self.callback_for_networks = callback_for_networks
         self.callback_for_lightlevel = callback_for_lightlevel
+        self.callback_for_update = callback_for_update
         self.request = dict()
         self.conns = dict()
         self.routes = {b"/": b"./index.html",
                        b"/get_info": self.get_info,
                        b"/login": self.login,
                        b"/settings": self.settings,
+                       b"/update_software": self.update_software,
                        b"/lightprev": self.prev_light}
 
         self.ssid = None
@@ -124,16 +126,22 @@ class HTTPServer(Server):
             b"HTTP/1.1 200 OK\r\n"
         )
         info = common.get_config()
-        info["act_temperature"], info["act_humidity"], info["act_pressure"], info["act_brightness"] = self.callback_for_measurements()
+        info["act_temperature"], info["act_humidity"], info["act_pressure"], info["act_brightness"], current_version, latest_version = self.callback_for_measurements()
         info["mac_address"] = self.mac_address
         info["ssid"] = Creds().load().ssid
         info["av_networks"] = self.callback_for_networks()
+        info["current_version"] = current_version
+        info["latest_version"] = latest_version
+        info["update_available"] = latest_version > current_version
         return ujson.dumps(info), headers
 
     def prev_light(self, params):
         prev_level = int(params.get(b"prev_level", 15))
         self.callback_for_lightlevel(prev_level)
         return self._redirect_response()
+
+    def update_software(self, params):
+        self.callback_for_update()
 
     def login(self, params):
         ssid = params.get(b"ssid", None)
@@ -163,7 +171,7 @@ class HTTPServer(Server):
 
         common.store_config(lat, lon, foreindex, ap_id,
                             min_level, min_lum, max_level, max_lum,
-                            custom_pos, 
+                            custom_pos,
                             timeout, debug)
 
         return self._redirect_response()

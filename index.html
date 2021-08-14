@@ -406,6 +406,12 @@
     <input type="password" name="password"></body>
     <input type="submit" value="Netzwärch ändere">
   </form>
+  <form action="/update_software" method="get" class="box">
+    <h2>Software Update</h2>
+    <p>Jetzigi Version <span id="current_version"></span></p>
+    <p>Neusti Version <span id="latest_version"></span></p>
+    <input id="update_now" type="submit" value="Update!">
+  </form>
   <script>
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", "/get_info", false ); // false for synchronous request
@@ -428,6 +434,14 @@
     // Others
     document.getElementById("timeout").value = obj.timeout / 1000;
     document.getElementById("debug").checked = obj.debug;
+    // Update
+    document.getElementById("current_version").innerHTML = obj.current_version;
+    document.getElementById("latest_version").innerHTML = obj.latest_version;
+    if (obj.update_available) {
+      document.getElementById("update_now").disabled = false;
+    } else {
+      document.getElementById("update_now").disabled = true;
+    }
     // Network
     document.getElementById("mac_addr").innerHTML = obj.mac_address;
     for (const [key, value] of Object.entries(obj.custom_pos)) {
