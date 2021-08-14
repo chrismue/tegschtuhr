@@ -14,4 +14,4 @@ if "next" in os.listdir("."):
         from ota_updater import OTAUpdater
         otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="/")
         otaUpdater.install_new_version_if_downloaded()
-print("Now Folder 'next' found for update")
+print("No Folder 'next' found for update")
