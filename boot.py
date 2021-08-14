@@ -8,6 +8,10 @@
 import gc
 gc.collect()
 
-from ota_updater import OTAUpdater
-otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="/")
-otaUpdater.install_new_version_if_downloaded()
+import os
+if "next" in os.listdir("."):
+    if '.version' in os.listdir("next"):
+        from ota_updater import OTAUpdater
+        otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="/")
+        otaUpdater.install_new_version_if_downloaded()
+print("Now Folder 'next' found for update")
