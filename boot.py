@@ -7,3 +7,7 @@
 # webrepl.start()
 import gc
 gc.collect()
+
+from ota_updater import OTAUpdater
+otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="/")
+otaUpdater.install_new_version_if_downloaded()

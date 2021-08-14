@@ -1,4 +1,5 @@
 import os, gc
+import machine
 from ota_httpclient import HttpClient
 
 class OTAUpdater:
@@ -62,6 +63,21 @@ class OTAUpdater:
         print('No new updates found...')
         return False
 
+    def download_version_and_reset(self, version):
+        print('Downloading version {}...'.format(version))
+        self._create_new_version_file(version)
+        self._download_new_version(version)
+        self._copy_secrets_file()
+        machine.reset()
+
+    def install_new_version_if_downloaded(self):
+        if self.new_version_dir in os.listdir(self.module):
+            if '.version' in os.listdir(self.modulepath(self.new_version_dir)):
+                self._delete_old_version()
+                self._install_new_version()
+                machine.reset()
+        print("No Update found.")
+
     def install_update_if_available(self) -> bool:
         """This method will immediately install the latest version if out-of-date.
 
@@ -98,6 +114,13 @@ class OTAUpdater:
             while not sta_if.isconnected():
                 pass
         print('network config:', sta_if.ifconfig())
+
+    def check_for_new_version(self):
+        current_version = self.get_version(self.modulepath(self.main_dir))
+        try:
+            return True, current_version, self.get_latest_version()
+        except OSError:  # OSError -202 if no internet access
+            return False, current_version, ""
 
     def _check_for_new_version(self):
         current_version = self.get_version(self.modulepath(self.main_dir))
@@ -163,13 +186,23 @@ class OTAUpdater:
 
     def _delete_old_version(self):
         print('Deleting old version at {} ...'.format(self.modulepath(self.main_dir)))
-        self._rmtree(self.modulepath(self.main_dir))
+        for filename in os.listdir(self.new_version_dir):
+            try:
+                filepath = self.main_dir + "/" + filename
+                f = open(filepath, "r")
+                f.close()
+                os.remove(filepath)
+                print("Deleted " + filepath)
+            except OSError:  # open failed
+               print(filename + " does not exit in " + self.main_dir)
         print('Deleted old version at {} ...'.format(self.modulepath(self.main_dir)))
 
     def _install_new_version(self):
         print('Installing new version at {} ...'.format(self.modulepath(self.main_dir)))
         if self._os_supports_rename():
-            os.rename(self.modulepath(self.new_version_dir), self.modulepath(self.main_dir))
+            for filename in os.listdir(self.new_version_dir):
+                print("Moving " + filename)
+                os.rename(self.new_version_dir + "/" + filename, self.main_dir + "/" + filename)
         else:
             self._copy_directory(self.modulepath(self.new_version_dir), self.modulepath(self.main_dir))
             self._rmtree(self.modulepath(self.new_version_dir))
