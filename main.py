@@ -95,6 +95,7 @@ if DEBUG_MODE or touchsensor.is_pressed():
             time_synced = False
             weather_synced = False
             version_synced = False
+            retry_weather = 0
 
             from ota_updater import OTAUpdater
             otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="")
@@ -105,12 +106,13 @@ if DEBUG_MODE or touchsensor.is_pressed():
                         time_synced = True
                     else:
                         print("Failed to Sync Time over NTP")
-                if not weather_synced:
+                if retry_weather < 10 and not weather_synced:
                     if weather.update():
                         print("Weather Updated.")
                         weather_synced = True
                     else:
-                        print("Failed to Sync Weather.")
+                        print("Failed to Sync Weather ("+str(retry_weather)+")")
+                        retry_weather = retry_weather + 1
                 if not version_synced:
                     version_synced, current_version, latest_version = otaUpdater.check_for_new_version()
                     print("Version", current_version, latest_version)
