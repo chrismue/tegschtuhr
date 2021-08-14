@@ -438,9 +438,9 @@
     document.getElementById("current_version").innerHTML = obj.current_version;
     document.getElementById("latest_version").innerHTML = obj.latest_version;
     if (obj.update_available) {
-      document.getElementById("update_now").disabled = false;
+      document.getElementById("update_now").hidden = false;
     } else {
-      document.getElementById("update_now").disabled = true;
+      document.getElementById("update_now").hidden = true;
     }
     // Network
     document.getElementById("mac_addr").innerHTML = obj.mac_address;

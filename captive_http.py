@@ -132,7 +132,7 @@ class HTTPServer(Server):
         info["av_networks"] = self.callback_for_networks()
         info["current_version"] = current_version
         info["latest_version"] = latest_version
-        info["update_available"] = latest_version > current_version
+        info["update_available"] = (len(latest_version) > 0) and (latest_version > current_version)
         return ujson.dumps(info), headers
 
     def prev_light(self, params):
