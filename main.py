@@ -14,6 +14,8 @@ from common import get_main_cfg, get_custompos_cfg
 
 CURRENT_MODE = 0  # 0: Time, 1: Temperature, 2: Humidity
 mode_timeoutstamp = 0
+current_version = ""
+latest_version = ""
 DEBUG_MODE, MODE_TIMEOUT_MS = get_main_cfg()
 
 # import credentials
@@ -40,7 +42,13 @@ else:
     mytime.sync_from_external_RTC()
 
 def get_measurements_for_web():
-    return ambient.temperature, ambient.humidity, ambient.pressure, lightsensor.luminance()
+    return ambient.temperature, ambient.humidity, ambient.pressure, lightsensor.luminance(), current_version, latest_version
+
+def update_for_web():
+    try:
+        otaUpdater.download_version_and_reset(latest_version)
+    except:
+        pass
 
 def mode_switch():
     global CURRENT_MODE
@@ -84,11 +92,13 @@ if DEBUG_MODE or touchsensor.is_pressed():
         mode_switch()
 
         from captive_portal import CaptivePortal
-        portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
+        portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness, update_for_web)
         if portal.start(MODE_TIMEOUT_MS):
             update_timeout()
             time_synced = False
             weather_synced = False
+            version_synced = False
+            retry_weather = 0
 
             while time.ticks_ms() < mode_timeoutstamp:
                 if not time_synced:
@@ -97,12 +107,21 @@ if DEBUG_MODE or touchsensor.is_pressed():
                         time_synced = True
                     else:
                         print("Failed to Sync Time over NTP")
-                if not weather_synced:
+                if retry_weather < 10 and not weather_synced:
                     if weather.update():
                         print("Weather Updated.")
                         weather_synced = True
                     else:
-                        print("Failed to Sync Weather.")
+                        print("Failed to Sync Weather ("+str(retry_weather)+")")
+                        retry_weather = retry_weather + 1
+                if not version_synced:
+                    try:
+                        otaUpdater
+                    except NameError:
+                        from ota_updater import OTAUpdater
+                        otaUpdater = OTAUpdater('https://github.com/chrismue/tegschtuhr', main_dir="")
+                    version_synced, current_version, latest_version = otaUpdater.check_for_new_version()
+                    print("Version", current_version, latest_version)
                 if portal.handle_socket_events():
                     update_timeout()
     except Exception as e:
@@ -121,7 +140,7 @@ if m % 5 == 0:
             portal  # check if CaptivePortal already initialized and port in use
         except NameError:
             from captive_portal import CaptivePortal
-            portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness)
+            portal = CaptivePortal(get_measurements_for_web, matrix.set_brightness, update_for_web)
         if portal.try_connect_from_file():
             connected_time = time.ticks_ms()
             synced_once = False
