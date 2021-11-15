@@ -7,8 +7,6 @@ from textmatrix import TextFinder
 from lightsensor import BH1750
 from touch import TouchSensor
 from localtime import LocalTime
-from ambient import BME280
-from weather import Weather
 
 from common import get_main_cfg, get_custompos_cfg
 
@@ -86,6 +84,8 @@ def mode_switch():
 touchsensor = TouchSensor(32, mode_switch)
 if DEBUG_MODE or touchsensor.is_pressed():
     try:
+        from ambient import BME280
+        from weather import Weather
         ambient = BME280(i2c)
         weather = Weather()
 
