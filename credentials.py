@@ -47,7 +47,7 @@ class Creds:
 
     def is_valid(self):
         # Ensure the credentials are entered as bytes
-        if not isinstance(self.ssid, bytes):
+        if not isinstance(self.ssid, bytes) or len(self.ssid) == 0:
             return False
         if not isinstance(self.password, bytes):
             return False
