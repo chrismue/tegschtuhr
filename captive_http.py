@@ -18,6 +18,8 @@ import gc
 
 import re
 
+BYTES_IN_BUFFER = 256  # max 536 (which equals TCP/IP MSS)
+
 _charref = re.compile(r'%([0-9a-fA-F][0-9a-fA-F])')
 
 class HTTPServer(Server):
@@ -248,15 +250,15 @@ class HTTPServer(Server):
     def prepare_write(self, s, body, headers):
         # add newline to headers to signify transition to body
         headers += "\r\n"
-        # TCP/IP MSS is 536 bytes, so create buffer of this size and
+        # TCP/IP MSS is 536 bytes, so create buffer of size BYTES_IN_BUFFER and
         # initially populate with header data
-        buff = bytearray(headers + "\x00" * (536 - len(headers)))
+        buff = bytearray(headers + "\x00" * (BYTES_IN_BUFFER - len(headers)))
         # use memoryview to read directly into the buffer without copying
         buffmv = memoryview(buff)
         # start reading body data into the memoryview starting after
         # the headers, and writing at most the remaining space of the buffer
         # return the number of bytes written into the memoryview from the body
-        bw = body.readinto(buffmv[len(headers) :], 536 - len(headers))
+        bw = body.readinto(buffmv[len(headers) :], BYTES_IN_BUFFER - len(headers))
         # save place for next write event
         c = WriteConn(body, buff, buffmv, [0, len(headers) + bw])
         self.conns[id(s)] = c
@@ -269,9 +271,9 @@ class HTTPServer(Server):
         # get the data that needs to be written to this socket
         c = self.conns[id(sock)]
         if c:
-            # write next 536 bytes (max) into the socket
+            # write next BYTES_IN_BUFFER bytes (max 536) into the socket
             bytes_written = sock.write(c.buffmv[c.write_range[0] : c.write_range[1]])
-            if not bytes_written or c.write_range[1] < 536:
+            if not bytes_written or c.write_range[1] < BYTES_IN_BUFFER:
                 # either we wrote no bytes, or we wrote < TCP MSS of bytes
                 # so we're done with this connection
                 self.close(sock)
@@ -289,7 +291,7 @@ class HTTPServer(Server):
             c.write_range[0] = 0
             # set next write end on the memoryview to length of bytes
             # read in from remainder of the body, up to TCP MSS
-            c.write_range[1] = c.body.readinto(c.buff, 536)
+            c.write_range[1] = c.body.readinto(c.buff, BYTES_IN_BUFFER)
         else:
             # didn't read in all the bytes that were in the memoryview
             # so just set next write start to where we ended the write
