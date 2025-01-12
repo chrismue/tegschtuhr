@@ -32,7 +32,7 @@ class Weather:
         if lat is None or lon is None or appid is None or forecast_index is None:
             lat, lon, forecast_index, appid = common.get_weather_cfg()
         self.got_data = False
-        self._url = "https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&units=metric&exclude=minutely,daily&appid={}".format(lat, lon, appid)
+        self._url = "https://api.openweathermap.org/data/3.0/onecall?lat={}&lon={}&units=metric&exclude=minutely,daily&appid={}".format(lat, lon, appid)
         self._forecast_index = forecast_index
         self.current_temp = 0.0
         self.forecast_temp = 0.0
