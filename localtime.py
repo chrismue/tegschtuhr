@@ -31,6 +31,7 @@ class LocalTime:
     @property
     def local_datetime(self):
         y, mo, d, wd, h, mi, s, _ = self._internal_rtc.datetime()
+        y = max(y, 2000)  # micropython 19.1 starts with Year 2000
         y, mo, d, h, mi, s, wd, yd = utime.localtime(utime.mktime((y, mo, d, h, mi, s, wd, 0)) + 3600 + 3600*self.daylight_saving(mo, d, wd, h))
         return mo, d, h, mi
 
