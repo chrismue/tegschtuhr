@@ -80,8 +80,8 @@ class CaptivePortal:
                 self.creds.ssid, self.creds.password, self.sta_if.status()
             )
         )
-        # forget the credentials since they didn't work, and turn off station mode
-        self.creds.remove()
+        # credentials didn't work, but might next time. Turn off station mode
+        # self.creds.remove()
         self.sta_if.active(False)
         return False
 
@@ -191,8 +191,8 @@ class CaptivePortal:
                 self.start_http_server()
                 return True
 
-        # WiFi Connection failed - remove credentials from disk
-        self.creds.remove()
+        # WiFi Connection failed
+        # self.creds.remove() # Keep credentials as we assume temporary problems
         return False
 
     def start(self, timeout):
