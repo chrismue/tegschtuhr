@@ -28,7 +28,7 @@ except NameError:
                 "max_level": 15,
                 "max_lum": 10,
                 "custom_pos": [[0,0], [2, 8], [6,5], [7, 4], [8,0]],
-                "timeout": 40000,
+                "timeout": 120000,
                 "debug": False}
 
 def store_config(lat, lon, foreindex, ap_id,
