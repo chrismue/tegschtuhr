@@ -48,7 +48,7 @@ class Weather:
             data = resp.json()
             print("parsed data")
             self.current_temp = data["current"]["temp"]
-            print(data["hourly"][self._forecast_index])
+            print("Temp: ", self.current_temp)
             self.forecast_temp = data["hourly"][self._forecast_index]["temp"]
             icon = data["hourly"][self._forecast_index]["weather"][0]["icon"]
             self.forecast_icon = icons[icon[:2]]
