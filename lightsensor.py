@@ -29,8 +29,12 @@ class BH1750():
         self.bus = i2cbus
         # print(self.bus)
         self.addr = addr
-        self.off()
-        self.reset()
+        try:
+            self.off()
+            self.reset()
+            self.connected = True
+        except OSError:
+            self.connected = False
 
     def off(self):
         """Turn sensor off."""
@@ -52,33 +56,39 @@ class BH1750():
 
     def luminance(self, mode=None):
         """Sample luminance (in lux), using specified sensor mode."""
-        mode = ONCE_HIRES_1 if mode is None else mode
-        # continuous modes
-        if mode & 0x10 and mode != self.mode:
-            self.set_mode(mode)
-        # one shot modes
-        if mode & 0x20:
-            self.set_mode(mode)
-        # earlier measurements return previous reading
-        sleep_ms(24 if mode in (0x13, 0x23) else 180)
-        data = self.bus.readfrom(self.addr, 2)
-        factor = 2.0 if mode in (0x11, 0x21) else 1.0
-        return (data[0]<<8 | data[1]) / (1.2 * factor)
+        if self.connected:
+            mode = ONCE_HIRES_1 if mode is None else mode
+            # continuous modes
+            if mode & 0x10 and mode != self.mode:
+                self.set_mode(mode)
+            # one shot modes
+            if mode & 0x20:
+                self.set_mode(mode)
+            # earlier measurements return previous reading
+            sleep_ms(24 if mode in (0x13, 0x23) else 180)
+            data = self.bus.readfrom(self.addr, 2)
+            factor = 2.0 if mode in (0x11, 0x21) else 1.0
+            return (data[0]<<8 | data[1]) / (1.2 * factor)
+        else:
+            return 666
 
     def get_light_level(self):
-        min_level, min_lum, max_level, max_lum = common.get_luminance_cfg()
+        if self.connected:
+            min_level, min_lum, max_level, max_lum = common.get_luminance_cfg()
 
-        if min_level == max_level:
-            l = max_level
-        elif min_lum == max_lum:
-            l = max_level
-        else:
-            lum = self.luminance()
-            if lum <= min_lum:
-                l = min_level
-            elif lum >= max_lum:
+            if min_level == max_level:
+                l = max_level
+            elif min_lum == max_lum:
                 l = max_level
             else:
-                l = round(min_level + (max_level - min_level) / (max_lum - min_lum) * (lum - min_lum), 0)
-            # print(lum, "->", l, "(", min_level, "@", min_lum, ",", max_level, "@", max_lum, ")")
-        return int(l)
+                lum = self.luminance()
+                if lum <= min_lum:
+                    l = min_level
+                elif lum >= max_lum:
+                    l = max_level
+                else:
+                    l = round(min_level + (max_level - min_level) / (max_lum - min_lum) * (lum - min_lum), 0)
+                # print(lum, "->", l, "(", min_level, "@", min_lum, ",", max_level, "@", max_lum, ")")
+            return int(l)
+        else:
+            return 15
