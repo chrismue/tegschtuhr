@@ -155,7 +155,7 @@ if m % 5 == 0:
 
 # sleep until next minute
 touchsensor.configure_for_wakeup()
-sleep_time = max(0.1, mytime.seconds_to_next_minute - 2)  # subtract 1 second for boot up
+sleep_time = max(0.1, mytime.seconds_to_next_minute - 1)  # subtract 1 second for boot up
 if not DEBUG_MODE:
     print("deep-sleeping at", h, ":", m, "; sleeping", sleep_time)
     supply_sensoren.off()
