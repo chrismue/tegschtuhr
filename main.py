@@ -1,4 +1,5 @@
 import time
+import gc
 import machine
 from machine import I2C, Pin
 
@@ -9,6 +10,10 @@ from touch import TouchSensor
 from localtime import LocalTime
 
 from common import get_main_cfg, get_custompos_cfg
+
+def erase_main():
+    with open("main.py","w") as f:
+        f.write("")
 
 CURRENT_MODE = 0  # 0: Time, 1: Temperature, 2: Humidity
 mode_timeoutstamp = 0
@@ -108,6 +113,7 @@ if DEBUG_MODE or touchsensor.is_pressed():
                     else:
                         print("Failed to Sync Time over NTP")
                 if retry_weather < 10 and not weather_synced:
+                    gc.collect()
                     if weather.update():
                         print("Weather Updated.")
                         weather_synced = True

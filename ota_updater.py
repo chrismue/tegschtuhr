@@ -145,6 +145,7 @@ class OTAUpdater:
         return '0.0'
 
     def get_latest_version(self):
+        gc.collect()
         latest_release = self.http_client.get('https://api.github.com/repos/{}/releases/latest'.format(self.github_repo))
         version = latest_release.json()['tag_name']
         latest_release.close()
