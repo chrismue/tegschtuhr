@@ -32,7 +32,8 @@ class Weather:
         if lat is None or lon is None or appid is None or forecast_index is None:
             lat, lon, forecast_index, appid = common.get_weather_cfg()
         self.got_data = False
-        self._url = "https://api.openweathermap.org/data/3.0/onecall?lat={}&lon={}&units=metric&exclude=minutely,daily&appid={}".format(lat, lon, appid)
+        self._current_url = "http://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units=metric&appid={}".format(lat, lon, appid)
+        self._forecast_url = "http://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&units=metric&cnt={}&appid={}".format(lat, lon, forecast_index + 1, appid)
         self._forecast_index = forecast_index
         self.current_temp = 0.0
         self.forecast_temp = 0.0
@@ -41,19 +42,21 @@ class Weather:
     def update(self):
         try:
             gc.collect()
-            print(self._url)
-            resp = urequests.get(self._url)
-            print("Got weather data")
-            gc.collect()
+            resp = urequests.get(self._current_url)
             data = resp.json()
-            print("parsed data")
-            self.current_temp = data["current"]["temp"]
+            resp.close()
+            self.current_temp = data["main"]["temp"]
             print("Temp: ", self.current_temp)
-            self.forecast_temp = data["hourly"][self._forecast_index]["temp"]
-            icon = data["hourly"][self._forecast_index]["weather"][0]["icon"]
-            self.forecast_icon = icons[icon[:2]]
+            gc.collect()
+            resp = urequests.get(self._forecast_url)
+            data = resp.json()
+            resp.close()
+            entry = data["list"][self._forecast_index]
+            self.forecast_temp = entry["main"]["temp"]
+            self.forecast_icon = icons[entry["weather"][0]["icon"][:2]]
             print(self.forecast_icon)
             self.got_data = True
             return True
-        except:
+        except Exception as e:
+            print("Weather update failed:", e)
             return False
