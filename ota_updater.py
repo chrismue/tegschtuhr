@@ -119,7 +119,8 @@ class OTAUpdater:
         current_version = self.get_version(self.modulepath(self.main_dir))
         try:
             return True, current_version, self.get_latest_version()
-        except OSError:  # OSError -202 if no internet access
+        except OSError as e:  # OSError -202 if no internet access
+            print("Version check failed:", repr(e))
             return False, current_version, ""
 
     def _check_for_new_version(self):
