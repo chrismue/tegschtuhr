@@ -76,8 +76,7 @@ def mode_switch():
     elif weather.got_data and CURRENT_MODE == 7:
         positions = textfinder.get_weather_positions(weather.forecast_icon)
     elif (weather.got_data and CURRENT_MODE >= 8) or (not weather.got_data and CURRENT_MODE >= 5):
-        for y in range(14):
-            positions += [[x,y] for x in range(12)]
+        positions = ((x, y) for y in range(14) for x in range(12))
     matrix.show_pixels(positions)
     if (weather.got_data and CURRENT_MODE >= 8) or (not weather.got_data and CURRENT_MODE >= 5):
         CURRENT_MODE = 0

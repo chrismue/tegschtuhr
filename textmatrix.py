@@ -44,34 +44,36 @@ class CharacterMatrix:
                     return []
                 found_end = found_start + len(text)            
                 if found_start % cls.ROW_LEN + len(text) <= cls.ROW_LEN: # result is on one line
-                    result_coordinates.extend([(p // cls.ROW_LEN, p % cls.ROW_LEN) for p in range(found_start, found_end)])
+                    for p in range(found_start, found_end):
+                        result_coordinates.append((p // cls.ROW_LEN, p % cls.ROW_LEN))
                     found_in_one_row = True
                 pos_in_matrix = found_end
         return result_coordinates
     
 
 class TextFinder:
-    PIXEL_NUMBERS=[[[0,0], [0,1], [0,2], [0,3], [1,0], [1,3], [2,0], [2,3], [3,0], [3,3], [4,0], [4,3], [5,0] ,[5,1], [5,2],[5,3]],
-                   [[0,3], [1,3], [2,3], [3,3], [4,3], [5,3]],
-                   [[0,0], [0,1], [0,2], [0,3], [1,3], [2,3], [2,2], [2,1], [2,0], [3,0], [4,0], [5,0], [5,1], [5,2], [5,3]],
-                   [[0,0], [0,1], [0,2], [0,3], [1,3], [2,0], [2,1], [2,2], [2,3], [3,3], [4,3], [5,0], [5,1], [5,2], [5,3]],
-                   [[0,0], [0,3], [1,0], [1,3], [2,0], [2,1], [2,2], [2,3], [3,3], [4,3], [5,3]],
-                   [[0,0], [0,1], [0,2], [0,3], [1,0], [2,0], [2,1], [2,2], [2,3], [3,3], [4,3], [5,0], [5,1], [5,2], [5,3]],
-                   [[0,0], [0,1], [0,2], [0,3], [1,0], [2,0], [2,1], [2,2], [2,3], [3,0], [4,0], [3,3], [4,3], [5,0], [5,1], [5,2], [5,3]],
-                   [[0,0], [0,1], [0,2], [0,3], [1,3], [2,3], [3,3], [4,3], [5,3]],
-                   [[0,0], [0,1], [0,2], [0,3], [1,0], [1,3], [2,0], [2,1], [2,2], [2,3], [3,0], [4,0], [3,3], [4,3], [5,0], [5,1], [5,2], [5,3]],
-                   [[0,0], [0,1], [0,2], [0,3], [1,0], [1,3], [2,0], [2,1], [2,2], [2,3], [3,3], [4,3], [5,0], [5,1], [5,2], [5,3]]]
-    
-    WEATHER = {SUNNY: [[0,5], [1,5], [2,5], [3,5], [4,5], [5,5]], 
-               CLOUDY: [[5,1], [6,1], [7,1], [8,1], [9,1]], 
-               RAINY: [[7,5], [8,5], [9,5], [10,5]], 
-               SNOWY: [[6,7], [7,7], [8,7], [9,7], [10,7], [11,7]]}
+    # One byte per coordinate: row * 14 + column. Keep fixed patterns in
+    # immutable bytes instead of hundreds of tiny Python coordinate lists.
+    PIXEL_NUMBERS = (
+        b'\x00\x01\x02\x03\x0e\x11\x1c\x1f*-8;FGHI',
+        b'\x03\x11\x1f-;I',
+        b'\x00\x01\x02\x03\x11\x1f\x1e\x1d\x1c*8FGHI',
+        b'\x00\x01\x02\x03\x11\x1c\x1d\x1e\x1f-;FGHI',
+        b'\x00\x03\x0e\x11\x1c\x1d\x1e\x1f-;I',
+        b'\x00\x01\x02\x03\x0e\x1c\x1d\x1e\x1f-;FGHI',
+        b'\x00\x01\x02\x03\x0e\x1c\x1d\x1e\x1f*8-;FGHI',
+        b'\x00\x01\x02\x03\x11\x1f-;I',
+        b'\x00\x01\x02\x03\x0e\x11\x1c\x1d\x1e\x1f*8-;FGHI',
+        b'\x00\x01\x02\x03\x0e\x11\x1c\x1d\x1e\x1f-;FGHI',
+    )
 
-    PERCENT = [[4,10], [4,13], [5,12], [6,11], [7,10], [7,13]]
+    WEATHER = {SUNNY: b'\x05\x13!/=K',
+               CLOUDY: b'GUcq\x7f',
+               RAINY: b'gu\x83\x91',
+               SNOWY: b'[iw\x85\x93\xa1'}
 
-    LUM = [[9, 3], [10, 3], [11, 3], 
-           [10, 5], [11, 5], [11, 6], [10, 7], [11, 7], 
-           [10, 9], [11, 9], [10, 10], [10, 11], [11, 11], [10, 12], [10, 13], [11, 13]]
+    PERCENT = b'BER_lo'
+    LUM = b'\x81\x8f\x9d\x91\x9f\xa0\x93\xa1\x95\xa3\x96\x97\xa5\x98\x99\xa7'
     
     MINUTES_TEXTS = [["ES", "ESCH"], ["EIS", "AB"], ["ZWOI", "AB"], ["DRÜ", "AB"], ["VIER", "AB"], ["FÜF", "AB"], ["SÄCHS", "AB"], ["SEBE", "AB"], ["ACHT", "AB"], ["NÜN", "AB"], 
                      ["ZÄH", "AB"], ["ELF", "AB"], ["ZWÖLF", "AB"], ["DRI", "ZÄH", "AB"], ["VIER", "ZÄH", "AB"], ["VIERTEL", "AB"], ["SÄCH", "ZÄH", "AB"], ["SEB", "ZÄH", "AB"], ["ACHT", "ZÄH", "AB"], ["NÜN", "ZÄH", "AB"], 
@@ -122,42 +124,51 @@ class TextFinder:
         after_texts = [self.DOT] + self.TEMP_AFTER_DIGIT[after] if after != 0 else []
         return self._matrix.findTexts(sign + self.TEMP_BEFORE_DIGIT[before] + after_texts + [self.DEGREE])
 
+    @staticmethod
+    def _append_positions(positions, packed, row_offset=0, column_offset=0):
+        # Keep the public list-of-coordinates interface, but build only one
+        # result list instead of concatenating multiple intermediate lists.
+        for pixel in packed:
+            positions.append([pixel // 14 + row_offset, pixel % 14 + column_offset])
+
     def get_humidity_positions(self, humidity):
         print("Searching Hum.", humidity)
         humidity_int = int(round(humidity,0))
-        ten_positions = self.PIXEL_NUMBERS[humidity_int // 10]
-        one_positions = self.PIXEL_NUMBERS[humidity_int % 10]
-        return [[p[0]+3, p[1]] for p in ten_positions] + [[p[0]+3, p[1]+5] for p in one_positions] + self.PERCENT
+        positions = []
+        self._append_positions(positions, self.PIXEL_NUMBERS[humidity_int // 10], 3)
+        self._append_positions(positions, self.PIXEL_NUMBERS[humidity_int % 10], 3, 5)
+        self._append_positions(positions, self.PERCENT)
+        return positions
 
     def get_date_positions(self, day, month):
         print("Searching date", day, month)
-        positions = [[p[0], p[1]+8] for p in self.PIXEL_NUMBERS[day % 10]]
+        positions = []
+        self._append_positions(positions, self.PIXEL_NUMBERS[day % 10], 0, 8)
         if day >= 10:
-            positions += [[p[0], p[1]+3] for p in self.PIXEL_NUMBERS[day // 10]]
-        positions += [[p[0]+6, p[1]+8] for p in self.PIXEL_NUMBERS[month % 10]]
+            self._append_positions(positions, self.PIXEL_NUMBERS[day // 10], 0, 3)
+        self._append_positions(positions, self.PIXEL_NUMBERS[month % 10], 6, 8)
         if month >= 10:
-            positions += [[p[0]+6, p[1]+3] for p in self.PIXEL_NUMBERS[month // 10]]
-        return positions + [[5, 13], [11, 13]]
+            self._append_positions(positions, self.PIXEL_NUMBERS[month // 10], 6, 3)
+        positions.append([5, 13])
+        positions.append([11, 13])
+        return positions
 
     def get_luminance_position(self, luminance):
         print("Searching Lum.", luminance)
         luminance_int = min(int(round(luminance,0)), 999)
+        positions = []
         if luminance_int >= 100:
-            hun_positions = self.PIXEL_NUMBERS[luminance_int // 100]
-        else:
-            hun_positions = []
+            self._append_positions(positions, self.PIXEL_NUMBERS[luminance_int // 100], 2)
         if luminance_int >= 10:
-            ten_positions = self.PIXEL_NUMBERS[(luminance_int // 10) % 10]
-        else:
-            ten_positions = []
-        one_positions = self.PIXEL_NUMBERS[luminance_int % 10]
-        return [[p[0]+2, p[1]] for p in hun_positions] + \
-               [[p[0]+2, p[1]+5] for p in ten_positions] + \
-               [[p[0]+2, p[1]+10] for p in one_positions] + \
-               self.LUM
+            self._append_positions(positions, self.PIXEL_NUMBERS[(luminance_int // 10) % 10], 2, 5)
+        self._append_positions(positions, self.PIXEL_NUMBERS[luminance_int % 10], 2, 10)
+        self._append_positions(positions, self.LUM)
+        return positions
 
     def get_weather_positions(self, weather_code):
-        return self.WEATHER[weather_code]
+        positions = []
+        self._append_positions(positions, self.WEATHER[weather_code])
+        return positions
  
 
 if __name__ == "__main__":

@@ -21,7 +21,6 @@ SOFTWARE.
 """
 
 from micropython import const
-import framebuf
 from machine import Pin, SPI
 
 _NOOP = const(0)
@@ -40,6 +39,7 @@ class Max7219Chain:
         self._cs = Pin(cs_pinnr, Pin.OUT)
         self._cs.on()
         self._buffer = bytearray(8*3)
+        self._command_buffer = bytearray(2)
         self._initialize()
 
     def _initialize(self):
@@ -61,7 +61,9 @@ class Max7219Chain:
         print("CMD:", command, data)
 
     def _write_spi(self,c,d):
-        self._spi.write(bytearray([c,d]))
+        self._command_buffer[0] = c
+        self._command_buffer[1] = d
+        self._spi.write(self._command_buffer)
 
     def show(self):
         for digit_nr in range(8):
@@ -81,7 +83,8 @@ class Max7219Chain:
         self._write_to_all(_INTENSITY, brightness)
 
     def reset_buffer(self):
-        self._buffer = bytearray(8*3)
+        for i in range(len(self._buffer)):
+            self._buffer[i] = 0
 
     def add_pixels(self, positions):
         for pos in positions:
@@ -91,6 +94,10 @@ class Max7219Chain:
         self.add_pixel(lednr // 14, lednr % 14)
 
     def add_pixel(self, r, c):
+        self._add_pixel(r, c)
+        self.show()
+
+    def _add_pixel(self, r, c):
         if r < 8:
             driver_nr = c // 7
             digit_nr = r
@@ -103,12 +110,12 @@ class Max7219Chain:
         offset = c % 7
         #print("->", driver_nr, digit_nr, offset, driver_nr*8 + digit_nr)
         self._buffer[driver_nr*8 + digit_nr] |= 1 << offset
-        self.show()
 
     def show_pixels(self, positions):
         # print("showing", positions)
         self.reset_buffer()
-        self.add_pixels(positions)
+        for pos in positions:
+            self._add_pixel(pos[0], pos[1])
         self.show()
 
 def demo():
