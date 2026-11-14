@@ -119,7 +119,7 @@ class OTAUpdater:
         current_version = self.get_version(self.modulepath(self.main_dir))
         try:
             return True, current_version, self.get_latest_version()
-        except OSError as e:  # OSError -202 if no internet access
+        except (OSError, MemoryError) as e:
             print("Version check failed:", repr(e))
             return False, current_version, ""
 
@@ -145,12 +145,28 @@ class OTAUpdater:
                 return version
         return '0.0'
 
+    def _get_json(self, url):
+        # Parse metadata only after releasing the TLS buffers. GitHub responses
+        # can be much larger than the few fields needed by the updater.
+        metadata_path = self.modulepath('.ota_metadata')
+        try:
+            gc.collect()
+            response = self.http_client.get(url, saveToFile=metadata_path)
+            response.close()
+            del response
+            gc.collect()
+            import ujson
+            with open(metadata_path) as metadata_file:
+                return ujson.load(metadata_file)
+        finally:
+            try:
+                os.remove(metadata_path)
+            except OSError:
+                pass
+
     def get_latest_version(self):
-        gc.collect()
-        latest_release = self.http_client.get('https://api.github.com/repos/{}/releases/latest'.format(self.github_repo))
-        version = latest_release.json()['tag_name']
-        latest_release.close()
-        return version
+        latest_release = self._get_json('https://api.github.com/repos/{}/releases/latest'.format(self.github_repo))
+        return latest_release['tag_name']
 
     def _download_new_version(self, version):
         print('Downloading version {}'.format(version))
@@ -159,21 +175,22 @@ class OTAUpdater:
 
     def _download_all_files(self, version, sub_dir=''):
         url = 'https://api.github.com/repos/{}/contents{}{}{}?ref=refs/tags/{}'.format(self.github_repo, self.github_src_dir, self.main_dir, sub_dir, version)
+        file_list = self._get_json(url)
+        # Do not keep GitHub's full metadata alive during subsequent TLS
+        # handshakes (including recursive directory downloads).
+        entries = [(file['type'], file['path'], file['name']) for file in file_list]
+        del file_list
         gc.collect()
-        file_list = self.http_client.get(url)
-        for file in file_list.json():
-            path = self.modulepath(self.new_version_dir + '/' + file['path'].replace(self.main_dir + '/', '').replace(self.github_src_dir, ''))
-            if file['type'] == 'file':
-                gitPath = file['path']
+        for file_type, gitPath, name in entries:
+            path = self.modulepath(self.new_version_dir + '/' + gitPath.replace(self.main_dir + '/', '').replace(self.github_src_dir, ''))
+            if file_type == 'file':
                 print('\tDownloading: ', gitPath, 'to', path)
                 self._download_file(version, gitPath, path)
-            elif file['type'] == 'dir':
+            elif file_type == 'dir':
                 print('Creating dir', path)
                 self.mkdir(path)
-                self._download_all_files(version, sub_dir + '/' + file['name'])
+                self._download_all_files(version, sub_dir + '/' + name)
             gc.collect()
-
-        file_list.close()
 
     def _download_file(self, version, gitPath, path):
         self.http_client.get('https://raw.githubusercontent.com/{}/{}/{}'.format(self.github_repo, version, gitPath), saveToFile=path)

@@ -1,4 +1,4 @@
-import usocket, os
+import usocket, os, gc
 class Response:
 
     def __init__(self, socket, saveToFile=None):
@@ -7,7 +7,7 @@ class Response:
         self._encoding = 'utf-8'
         if saveToFile is not None:
             CHUNK_SIZE = 512 # bytes
-            with open(saveToFile, 'w') as outfile:
+            with open(saveToFile, 'wb') as outfile:
                 data = self._socket.read(CHUNK_SIZE)
                 while data:
                     outfile.write(data)
@@ -80,14 +80,17 @@ class HttpClient:
             raise ValueError('You are not connected to the internet...')
         ai = ai[0]
 
+        gc.collect()
         s = usocket.socket(ai[0], ai[1], ai[2])
         try:
             s.connect(ai[-1])
             if proto == 'https:':
+                # TLS needs a sizeable contiguous allocation on MicroPython.
+                gc.collect()
                 s = ssl.wrap_socket(s, server_hostname=host)
-            s.write(b'%s /%s HTTP/1.0\r\n' % (method, path))
+            s.write(('%s /%s HTTP/1.0\r\n' % (method, path)).encode())
             if not 'Host' in headers:
-                s.write(b'Host: %s\r\n' % host)
+                s.write(('Host: %s\r\n' % host).encode())
             # Iterate over keys to avoid tuple alloc
             _write_headers(s, self._headers)
             _write_headers(s, headers)
@@ -132,14 +135,16 @@ class HttpClient:
                         raise ValueError('Unsupported ' + l)
                 elif l.startswith(b'Location:') and not 200 <= status <= 299:
                     raise NotImplementedError('Redirects not yet supported')
-        except OSError:
+            resp = Response(s, saveToFile)
+            resp.status_code = status
+            resp.reason = reason
+            return resp
+        except Exception:
+            # Also release sockets on MemoryError, invalid responses and file
+            # write failures, not just network errors.
             s.close()
+            gc.collect()
             raise
-
-        resp = Response(s, saveToFile)
-        resp.status_code = status
-        resp.reason = reason
-        return resp
 
     def head(self, url, **kw):
         return self.request('HEAD', url, **kw)
