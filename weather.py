@@ -43,17 +43,25 @@ class Weather:
         try:
             gc.collect()
             resp = urequests.get(self._current_url)
-            data = resp.json()
-            resp.close()
-            self.current_temp = data["main"]["temp"]
+            try:
+                data = resp.json()
+                self.current_temp = data["main"]["temp"]
+                del data
+            finally:
+                resp.close()
+            del resp
             print("Temp: ", self.current_temp)
             gc.collect()
             resp = urequests.get(self._forecast_url)
-            data = resp.json()
-            resp.close()
-            entry = data["list"][self._forecast_index]
-            self.forecast_temp = entry["main"]["temp"]
-            self.forecast_icon = icons[entry["weather"][0]["icon"][:2]]
+            try:
+                data = resp.json()
+                entry = data["list"][self._forecast_index]
+                self.forecast_temp = entry["main"]["temp"]
+                self.forecast_icon = icons[entry["weather"][0]["icon"][:2]]
+                del entry, data
+            finally:
+                resp.close()
+            del resp
             print(self.forecast_icon)
             self.got_data = True
             return True
